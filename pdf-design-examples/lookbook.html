@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PDF Design Lookbook</title>
+<link href="fonts/fonts.css" rel="stylesheet">
+<style>
+  @page { size: 8.5in 11in; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "DM Sans", sans-serif; color: #1d1b26; font-size: 10.5pt; line-height: 1.5; }
+  .page { width: 8.5in; height: 11in; position: relative; overflow: hidden; page-break-after: always; break-after: page; }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .folio { position: absolute; bottom: 0.45in; left: 0.7in; right: 0.7in; display: flex; justify-content: space-between;
+           font-family: "JetBrains Mono", monospace; font-size: 7.5pt; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+
+  /* ---------- 1. COVER ---------- */
+  .cover { background: #fbf3e4; }
+  .cover .blob { position: absolute; border-radius: 50%; }
+  .cover .b1 { width: 5.2in; height: 5.2in; background: #ff6b4a; right: -1.4in; top: -1.2in; }
+  .cover .b2 { width: 2.6in; height: 2.6in; background: #2d4bff; right: 2.6in; top: 2.4in; mix-blend-mode: multiply; }
+  .cover .b3 { width: 1.4in; height: 1.4in; background: #ffc83d; right: 1.0in; top: 4.1in; }
+  .cover .stripe { position: absolute; left: 0; right: 0; bottom: 0; height: 1.25in; background: #1d1b26;
+                   display: flex; align-items: center; padding: 0 0.7in; gap: .35in; color: #fbf3e4;
+                   font-family: "JetBrains Mono", monospace; font-size: 8pt; letter-spacing: .12em; text-transform: uppercase; }
+  .cover .stripe span:first-child { color: #ffc83d; }
+  .cover .eyebrow { position: absolute; top: 0.7in; left: 0.7in; font-family: "JetBrains Mono", monospace; font-size: 8.5pt;
+                    letter-spacing: .14em; text-transform: uppercase; }
+  .cover h1 { position: absolute; left: 0.62in; bottom: 2.6in; font-family: "Fraunces", serif; font-weight: 900;
+              font-size: 88pt; line-height: .86; letter-spacing: -.035em; font-variation-settings: "SOFT" 100, "WONK" 1; }
+  .cover h1 em { font-style: italic; font-weight: 400; color: #ff6b4a; }
+  .cover .sub { position: absolute; left: 0.7in; bottom: 1.5in; font-size: 11.5pt; max-width: 4.6in; }
+
+  /* ---------- 2. IMPACT REPORT ---------- */
+  .report { background: #fff; padding: 0.7in; }
+  .report .tag { display: inline-block; background: #e6f4ea; color: #1b6b3a; font-family: "JetBrains Mono", monospace;
+                 font-size: 7.5pt; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 99px; }
+  .report h2 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 40pt; line-height: 1;
+               letter-spacing: -.03em; margin: 14px 0 10px; }
+  .report h2 .hl { background: linear-gradient(transparent 58%, #b7f5c8 58%); }
+  .report .lede { font-size: 12pt; color: #4b4858; max-width: 5.6in; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0 24px; }
+  .stat { border-radius: 18px; padding: 18px 18px 16px; }
+  .stat .n { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 34pt; line-height: 1; letter-spacing: -.03em; }
+  .stat .l { font-size: 9pt; margin-top: 6px; }
+  .s1 { background: #1b6b3a; color: #fff; } .s2 { background: #b7f5c8; } .s3 { background: #f2efe8; }
+  .report .two { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; }
+  .report h3 { font-family: "Bricolage Grotesque", sans-serif; font-size: 13pt; font-weight: 600; margin-bottom: 8px; }
+  .chart { border: 1.5px solid #ece9e1; border-radius: 18px; padding: 16px; }
+  .quote { background: #fff8d6; border-radius: 18px; padding: 20px; position: relative; }
+  .quote p { font-family: "Fraunces", serif; font-style: italic; font-size: 14pt; line-height: 1.3; }
+  .quote .who { font-size: 8.5pt; margin-top: 10px; color: #6a6676; }
+  .quote::before { content: "\201C"; position: absolute; top: -26px; right: 16px; font-family: "Fraunces", serif;
+                   font-size: 90pt; color: #ffc83d; line-height: 1; }
+  .report ul { list-style: none; margin-top: 18px; }
+  .report li { padding: 8px 0; border-bottom: 1px dashed #dcd8cf; display: flex; gap: 10px; font-size: 9.5pt; }
+  .report li b { font-family: "JetBrains Mono", monospace; color: #1b6b3a; font-weight: 600; }
+
+  /* ---------- 3. INVOICE ---------- */
+  .invoice { background: #f4f1ff; padding: 0.7in; }
+  .inv-head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .logo { display: flex; align-items: center; gap: 10px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 16pt; }
+  .logo i { width: 34px; height: 34px; border-radius: 10px; background: #6c4cff; display: inline-block; position: relative; }
+  .logo i::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #ffc83d; right: -5px; top: -5px; }
+  .invoice h2 { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 58pt; letter-spacing: -.04em; line-height: .9;
+                color: #6c4cff; margin-top: 34px; }
+  .invoice .hi { font-size: 12pt; margin: 10px 0 26px; }
+  .meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 22px; }
+  .meta div { background: #fff; border-radius: 14px; padding: 12px 14px; }
+  .meta small { display: block; font-family: "JetBrains Mono", monospace; font-size: 7pt; letter-spacing: .1em; text-transform: uppercase; color: #8b84a8; }
+  .meta strong { font-family: "Space Grotesk", sans-serif; font-size: 11pt; }
+  .card { background: #fff; border-radius: 22px; padding: 8px 22px 18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+  th { text-align: left; font-family: "JetBrains Mono", monospace; font-size: 7.5pt; letter-spacing: .1em; text-transform: uppercase;
+       color: #8b84a8; font-weight: 400; padding: 14px 0 10px; border-bottom: 1.5px solid #ece8fb; }
+  td { padding: 13px 0; border-bottom: 1px solid #f1eefb; vertical-align: top; }
+  td small { display: block; color: #8b84a8; font-size: 8.5pt; }
+  .r { text-align: right; } .num { font-variant-numeric: tabular-nums; }
+  .chip { display: inline-block; font-size: 7.5pt; padding: 2px 8px; border-radius: 99px; margin-left: 6px; vertical-align: 1px; }
+  .c1 { background: #ffe8a3; } .c2 { background: #d7f7e2; } .c3 { background: #ffd9d0; }
+  .totals { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 18px; }
+  .totals .note { font-size: 9pt; color: #6a6480; max-width: 3in; }
+  .totals .sum { text-align: right; }
+  .totals .sum div { font-size: 9.5pt; color: #6a6480; }
+  .totals .sum .big { background: #1d1b26; color: #fff; border-radius: 16px; padding: 12px 20px; margin-top: 8px; display: inline-flex; gap: 18px; align-items: baseline; }
+  .totals .big span { font-family: "JetBrains Mono", monospace; font-size: 7.5pt; letter-spacing: .1em; text-transform: uppercase; color: #ffc83d; }
+  .totals .big b { font-family: "Space Grotesk", sans-serif; font-size: 22pt; }
+  .thanks { position: absolute; bottom: 0.9in; left: 0.7in; right: 0.7in; display: flex; justify-content: space-between; align-items: center; }
+  .thanks .t { font-family: "Fraunces", serif; font-style: italic; font-size: 22pt; color: #6c4cff; }
+  .thanks .pay { font-size: 8.5pt; text-align: right; color: #6a6480; }
+
+  /* ---------- 4. EVENT ONE-PAGER ---------- */
+  .event { background: #12172b; color: #f3efe6; }
+  .event .grid-bg { position: absolute; inset: 0; background-image:
+      linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 0.5in 0.5in; }
+  .event .sun { position: absolute; width: 4.4in; height: 4.4in; right: -0.8in; top: 0.9in; border-radius: 50%;
+      background: repeating-linear-gradient(180deg, #ff5e8a 0 22px, transparent 22px 30px); }
+  .event .inner { position: absolute; inset: 0.7in; }
+  .event .when { display: inline-flex; gap: 8px; }
+  .event .when span { border: 1.5px solid #f3efe6; border-radius: 99px; padding: 4px 12px; font-family: "JetBrains Mono", monospace;
+      font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; }
+  .event .when span.fill { background: #c8ff4d; color: #12172b; border-color: #c8ff4d; }
+  .event h2 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 78pt; line-height: .88; letter-spacing: -.04em;
+      margin-top: 2.7in; position: relative; }
+  .event h2 span { color: #c8ff4d; }
+  .event .blurb { font-size: 12pt; max-width: 4.4in; margin-top: 14px; color: #c9c5bb; }
+  .lineup { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 30px; }
+  .slot { border-top: 2px solid #c8ff4d; padding-top: 10px; }
+  .slot .time { font-family: "JetBrains Mono", monospace; font-size: 8pt; color: #c8ff4d; }
+  .slot .what { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 13pt; line-height: 1.15; margin: 4px 0; }
+  .slot .who { font-size: 8.5pt; color: #a29e95; }
+  .event .ticket { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: center;
+      background: #f3efe6; color: #12172b; border-radius: 20px; padding: 16px 22px; }
+  .event .ticket b { font-family: "Bricolage Grotesque", sans-serif; font-size: 16pt; }
+  .event .ticket .btn { background: #ff5e8a; color: #fff; border-radius: 99px; padding: 8px 18px; font-weight: 700; font-size: 10pt; }
+
+  /* ---------- 5. PROPOSAL ---------- */
+  .proposal { background: #fff; display: grid; grid-template-columns: 2.5in 1fr; }
+  .proposal aside { background: #ffe14d; padding: 0.7in 0.4in 0.7in 0.6in; position: relative; }
+  .proposal aside .num { font-family: "Fraunces", serif; font-weight: 900; font-size: 92pt; line-height: .8; letter-spacing: -.05em; }
+  .proposal aside h4 { font-family: "JetBrains Mono", monospace; font-size: 8pt; letter-spacing: .12em; text-transform: uppercase; margin-top: 18px; }
+  .proposal aside p { font-size: 9.5pt; margin-top: 8px; }
+  .proposal aside .squig { position: absolute; bottom: 1.1in; left: 0.6in; }
+  .proposal main { padding: 0.7in 0.7in 0.7in 0.55in; }
+  .proposal h2 { font-family: "Fraunces", serif; font-weight: 700; font-size: 34pt; line-height: 1.02; letter-spacing: -.02em; }
+  .proposal h2 em { font-weight: 400; }
+  .proposal .intro { font-size: 11pt; color: #4b4858; margin: 14px 0 30px; }
+  .phase { display: grid; grid-template-columns: 0.9in 1fr; gap: 14px; padding: 20px 0; border-top: 1.5px solid #1d1b26; }
+  .phase .wk { font-family: "JetBrains Mono", monospace; font-size: 8pt; text-transform: uppercase; letter-spacing: .08em; }
+  .phase h5 { font-family: "Fraunces", serif; font-size: 14pt; font-weight: 700; margin-bottom: 3px; }
+  .phase p { font-size: 9.5pt; color: #4b4858; }
+  .gantt { margin-top: 8px; height: 10px; background: #f2efe8; border-radius: 99px; position: relative; }
+  .gantt i { position: absolute; top: 0; bottom: 0; border-radius: 99px; }
+  .price { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .opt { border: 1.5px solid #1d1b26; border-radius: 16px; padding: 14px 16px; }
+  .opt.pick { background: #1d1b26; color: #fff; position: relative; }
+  .opt.pick::after { content: "our pick"; position: absolute; top: -10px; right: 14px; background: #ff6b4a; color: #fff; font-size: 7.5pt;
+                     font-family: "JetBrains Mono", monospace; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: .08em; }
+  .opt small { font-family: "JetBrains Mono", monospace; font-size: 7.5pt; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+  .opt b { display: block; font-family: "Fraunces", serif; font-size: 22pt; margin: 2px 0; }
+  .opt p { font-size: 8.5pt; opacity: .8; }
+
+  /* ---------- 6. RECIPE CARD ---------- */
+  .notes { background: #fbf3e4; padding: 0.7in; }
+  .notes h2 { font-family: "Fraunces", serif; font-weight: 900; font-size: 44pt; letter-spacing: -.03em; line-height: 1; }
+  .notes h2 em { font-weight: 400; color: #ff6b4a; }
+  .notes .lede { font-size: 11.5pt; margin: 10px 0 24px; max-width: 5.8in; color: #4b4858; }
+  .palettes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 36px; }
+  .pal { background: #fff; border-radius: 14px; padding: 8px; }
+  .pal .sw { display: flex; height: 0.95in; border-radius: 9px; overflow: hidden; }
+  .pal .sw i { flex: 1; }
+  .pal small { display: block; font-family: "JetBrains Mono", monospace; font-size: 7pt; margin-top: 6px; letter-spacing: .04em; }
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 26px; }
+  .rule { display: grid; grid-template-columns: 34px 1fr; gap: 10px; }
+  .rule .k { width: 34px; height: 34px; border-radius: 10px; background: #1d1b26; color: #ffc83d; font-family: "JetBrains Mono", monospace;
+             font-weight: 600; display: flex; align-items: center; justify-content: center; font-size: 10pt; }
+  .rule h5 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 12pt; line-height: 1.2; }
+  .rule p { font-size: 9pt; color: #4b4858; }
+  .pairs { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pair { background: #fff; border-radius: 14px; padding: 14px; }
+  .pair .d { font-size: 19pt; white-space: nowrap; line-height: 1; }
+  .pair .b { font-size: 8.5pt; color: #4b4858; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<!-- 1. COVER -->
+<section class="page cover">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="eyebrow">Vol. 01 — Layout Lookbook / 2026</div>
+  <h1>Serious<br>work, <em>happy</em><br>pages.</h1>
+  <p class="sub">Six PDF layouts that are fun but professional: a cover, a report, an invoice, an event flyer, a proposal, and the recipe behind all of them.</p>
+  <div class="stripe"><span>&#9679; Inside</span><span>Report</span><span>Invoice</span><span>Event</span><span>Proposal</span><span>Recipe</span></div>
+</section>
+
+<!-- 2. IMPACT REPORT -->
+<section class="page report">
+  <span class="tag">&#9679; Annual impact report</span>
+  <h2>A very <span class="hl">good year</span><br>for small gardens.</h2>
+  <p class="lede">Big numbers in soft, rounded tiles, one highlight color, and plenty of white space. A playful heading on top of a sober grid keeps the data easy to trust.</p>
+
+  <div class="stats">
+    <div class="stat s1"><div class="n">12,480</div><div class="l">trees planted across 41 neighborhoods</div></div>
+    <div class="stat s2"><div class="n">+38%</div><div class="l">volunteer hours compared with last year</div></div>
+    <div class="stat s3"><div class="n">96</div><div class="l">school gardens now run by students</div></div>
+  </div>
+
+  <div class="two">
+    <div>
+      <h3>Planting by quarter</h3>
+      <div class="chart">
+        <svg viewBox="0 0 340 170" width="100%">
+          <g font-family="JetBrains Mono" font-size="9" fill="#8a8698">
+            <line x1="30" y1="140" x2="330" y2="140" stroke="#ece9e1" stroke-width="1.5"/>
+            <line x1="30" y1="95" x2="330" y2="95" stroke="#f3f1ec" stroke-dasharray="3 4"/>
+            <line x1="30" y1="50" x2="330" y2="50" stroke="#f3f1ec" stroke-dasharray="3 4"/>
+            <text x="0" y="143">0</text><text x="0" y="98">2k</text><text x="0" y="53">4k</text>
+            <rect x="50"  y="108" width="44" height="32" rx="10" fill="#b7f5c8"/>
+            <rect x="120" y="82"  width="44" height="58" rx="10" fill="#b7f5c8"/>
+            <rect x="190" y="38"  width="44" height="102" rx="10" fill="#1b6b3a"/>
+            <rect x="260" y="70"  width="44" height="70" rx="10" fill="#b7f5c8"/>
+            <text x="62" y="158">Q1</text><text x="132" y="158">Q2</text><text x="202" y="158">Q3</text><text x="272" y="158">Q4</text>
+            <text x="186" y="30" fill="#1b6b3a" font-weight="600">4,560 &#8599;</text>
+          </g>
+        </svg>
+      </div>
+      <ul>
+        <li><b>01</b> Opened three new seed libraries in public branches.</li>
+        <li><b>02</b> Cut water use 22% with drip lines and rain barrels.</li>
+        <li><b>03</b> Paid every intern at least the city living wage.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>In their words</h3>
+      <div class="quote">
+        <p>My students check on the tomatoes before they check their phones. That is a small miracle.</p>
+        <div class="who">Ms. Okafor, 6th grade science teacher</div>
+      </div>
+      <h3 style="margin-top:22px">Where the money went</h3>
+      <svg viewBox="0 0 240 120" width="100%">
+        <g font-family="DM Sans" font-size="10" fill="#1d1b26">
+          <rect x="0" y="6" width="240" height="20" rx="10" fill="#f2efe8"/>
+          <rect x="0" y="6" width="166" height="20" rx="10" fill="#1b6b3a"/>
+          <text x="0" y="42">Programs</text><text x="240" y="42" text-anchor="end" font-weight="700">69%</text>
+          <rect x="0" y="54" width="240" height="20" rx="10" fill="#f2efe8"/>
+          <rect x="0" y="54" width="48" height="20" rx="10" fill="#b7f5c8"/>
+          <text x="0" y="90">Operations</text><text x="240" y="90" text-anchor="end" font-weight="700">20%</text>
+          <text x="0" y="114" fill="#8a8698">Fundraising: 11%</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="folio"><span>Greenblock Collective</span><span>Impact report · p. 02</span></div>
+</section>
+
+<!-- 3. INVOICE -->
+<section class="page invoice">
+  <div class="inv-head">
+    <div class="logo"><i></i>Pebble Studio</div>
+    <div style="text-align:right;font-size:9pt;color:#6a6480">pebble.studio<br>hello@pebble.studio<br>Portland, OR</div>
+  </div>
+  <h2>Invoice</h2>
+  <p class="hi">Hi Maple &amp; Co. Here's what we built together this month. &#10024;</p>
+
+  <div class="meta">
+    <div><small>Invoice no.</small><strong>#0427</strong></div>
+    <div><small>Issued</small><strong>Oct 3, 2026</strong></div>
+    <div><small>Due</small><strong>Oct 17, 2026</strong></div>
+    <div><small>Billed to</small><strong>Maple &amp; Co.</strong></div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead><tr><th>Item</th><th class="r">Hours</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>
+      <tbody>
+        <tr><td>Brand refresh <span class="chip c1">design</span><small>Logo tune-up, color system, type scale</small></td><td class="r num">18</td><td class="r num">$120</td><td class="r num">$2,160</td></tr>
+        <tr><td>Website build <span class="chip c2">dev</span><small>6 responsive pages, CMS setup</small></td><td class="r num">32</td><td class="r num">$135</td><td class="r num">$4,320</td></tr>
+        <tr><td>Launch illustrations <span class="chip c3">art</span><small>4 hero images + social crops</small></td><td class="r num">10</td><td class="r num">$110</td><td class="r num">$1,100</td></tr>
+        <tr><td>Strategy session<small>Kickoff workshop (on the house)</small></td><td class="r num">2</td><td class="r num">$0</td><td class="r num">$0</td></tr>
+      </tbody>
+    </table>
+    <div class="totals">
+      <p class="note">Net 14. Pay by card or bank transfer. A 2% early-bird discount applies if you pay within 7 days.</p>
+      <div class="sum">
+        <div>Subtotal&nbsp;&nbsp; $7,580</div>
+        <div>Tax (0%)&nbsp;&nbsp; $0</div>
+        <div class="big"><span>Total due</span><b>$7,580.00</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="thanks">
+    <div class="t">Thanks for being lovely to work with!</div>
+    <div class="pay">Bank: Riverside CU<br>Acct ****4821 · Routing ****0193</div>
+  </div>
+</section>
+
+<!-- 4. EVENT ONE-PAGER -->
+<section class="page event">
+  <div class="grid-bg"></div>
+  <div class="sun"></div>
+  <div class="inner">
+    <div class="when"><span class="fill">Nov 14, 2026</span><span>Oakland, CA</span><span>Free entry</span></div>
+    <h2>Build<br>Night <span>&#8594;</span><br><span>v3</span></h2>
+    <p class="blurb">One evening of demos, lightning talks, and very good tacos for people who make things. Bring a laptop, a half-finished idea, or just your curiosity.</p>
+    <div class="lineup">
+      <div class="slot"><div class="time">18:00</div><div class="what">Doors, tacos &amp; table setup</div><div class="who">Main hall</div></div>
+      <div class="slot"><div class="time">19:00</div><div class="what">Five talks, five minutes each</div><div class="who">Hosted by Priya R.</div></div>
+      <div class="slot"><div class="time">20:30</div><div class="what">Open demos &amp; people's choice award</div><div class="who">Everyone</div></div>
+    </div>
+    <div class="ticket">
+      <div><b>Save your spot</b><br><span style="font-size:9pt">Limited to 200 makers · buildnight.dev</span></div>
+      <div class="btn">RSVP &#8594;</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. PROPOSAL -->
+<section class="page proposal">
+  <aside>
+    <div class="num">05</div>
+    <h4>Project proposal</h4>
+    <p>Prepared for <b>Lumen Health</b><br>by Northpaw Design<br>October 2026</p>
+    <h4 style="margin-top:28px">The short version</h4>
+    <p>A calmer, kinder patient app in 10 weeks, tested with real patients every step of the way.</p>
+    <svg class="squig" width="120" height="40" viewBox="0 0 120 40"><path d="M2 20 Q 17 2 32 20 T 62 20 T 92 20 T 118 20" fill="none" stroke="#1d1b26" stroke-width="3" stroke-linecap="round"/></svg>
+  </aside>
+  <main>
+    <h2>Making the waiting room <em>feel less like one.</em></h2>
+    <p class="intro">A big serif headline brings warmth. The bold sidebar gives the page character, and the timeline keeps it trustworthy.</p>
+
+    <div class="phase"><div class="wk">Wk 1–2</div><div><h5>Listen</h5><p>Interview 12 patients and 6 clinicians. Map the moments that cause anxiety.</p>
+      <div class="gantt"><i style="left:0;width:20%;background:#ffe14d"></i></div></div></div>
+    <div class="phase"><div class="wk">Wk 3–5</div><div><h5>Sketch</h5><p>Three directions, paper prototypes, and a co-design session with your team.</p>
+      <div class="gantt"><i style="left:20%;width:30%;background:#ff6b4a"></i></div></div></div>
+    <div class="phase"><div class="wk">Wk 6–9</div><div><h5>Build &amp; test</h5><p>A clickable prototype, two rounds of usability testing, and an accessibility audit.</p>
+      <div class="gantt"><i style="left:50%;width:40%;background:#2d4bff"></i></div></div></div>
+    <div class="phase" style="border-bottom:1.5px solid #1d1b26"><div class="wk">Wk 10</div><div><h5>Hand off</h5><p>A design system, specs, and a walkthrough with engineering.</p>
+      <div class="gantt"><i style="left:90%;width:10%;background:#1d1b26"></i></div></div></div>
+
+    <div class="price">
+      <div class="opt"><small>Essentials</small><b>$38k</b><p>Research, prototype, one test round</p></div>
+      <div class="opt pick"><small>Full journey</small><b>$54k</b><p>Everything above + design system</p></div>
+    </div>
+  </main>
+</section>
+
+<!-- 6. THE RECIPE -->
+<section class="page notes">
+  <h2>The recipe for <em>fun</em> but professional</h2>
+  <p class="lede">Every page in this lookbook follows the same few rules. Steal them for your own reports, invoices, and flyers.</p>
+
+  <div class="palettes">
+    <div class="pal"><div class="sw"><i style="background:#fbf3e4"></i><i style="background:#ff6b4a"></i><i style="background:#2d4bff"></i><i style="background:#ffc83d"></i></div><small>Cover · Sunny pop</small></div>
+    <div class="pal"><div class="sw"><i style="background:#1b6b3a"></i><i style="background:#b7f5c8"></i><i style="background:#f2efe8"></i><i style="background:#fff8d6"></i></div><small>Report · Garden</small></div>
+    <div class="pal"><div class="sw"><i style="background:#f4f1ff"></i><i style="background:#6c4cff"></i><i style="background:#ffc83d"></i><i style="background:#1d1b26"></i></div><small>Invoice · Grape</small></div>
+    <div class="pal"><div class="sw"><i style="background:#12172b"></i><i style="background:#c8ff4d"></i><i style="background:#ff5e8a"></i><i style="background:#f3efe6"></i></div><small>Event · Night</small></div>
+    <div class="pal"><div class="sw"><i style="background:#ffe14d"></i><i style="background:#ff6b4a"></i><i style="background:#2d4bff"></i><i style="background:#1d1b26"></i></div><small>Proposal · Primary</small></div>
+  </div>
+
+  <div class="rules">
+    <div class="rule"><div class="k">01</div><div><h5>Play with one thing</h5><p>A big headline, one bright color, or one shape. Keep everything else calm and on a grid.</p></div></div>
+    <div class="rule"><div class="k">02</div><div><h5>Warm, off-white paper</h5><p>Cream, lilac, or ink-navy backgrounds feel designed. Plain white can feel like a default.</p></div></div>
+    <div class="rule"><div class="k">03</div><div><h5>Round the corners</h5><p>Soft 14–22px radii on cards and chips feel friendly without being childish.</p></div></div>
+    <div class="rule"><div class="k">04</div><div><h5>Use a mono label voice</h5><p>Small uppercase monospace for labels and metadata adds precision next to playful display type.</p></div></div>
+    <div class="rule"><div class="k">05</div><div><h5>Let numbers be heroes</h5><p>Show key figures large, with tabular digits and a single accent. Readers trust what they can scan.</p></div></div>
+    <div class="rule"><div class="k">06</div><div><h5>Write like a human</h5><p>"Thanks for being lovely to work with!" does more for personality than any illustration.</p></div></div>
+  </div>
+
+  <div class="pairs">
+    <div class="pair"><div class="d" style="font-family:Fraunces;font-weight:900">Fraunces</div><div class="b">+ DM Sans: editorial and warm. Good for covers and proposals.</div></div>
+    <div class="pair"><div class="d" style="font-family:'Bricolage Grotesque';font-weight:800">Bricolage</div><div class="b">+ DM Sans: chunky and modern. Good for reports and events.</div></div>
+    <div class="pair"><div class="d" style="font-family:'Space Grotesk';font-weight:700">Space Grotesk</div><div class="b">+ JetBrains Mono: techy and tidy. Good for invoices and docs.</div></div>
+  </div>
+  <div class="folio"><span>Layout Lookbook</span><span>All fonts free on Google Fonts</span></div>
+</section>
+
+</body>
+</html>
