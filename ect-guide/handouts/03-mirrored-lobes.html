@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Mirrored Lobes</title>
+<link rel="stylesheet" href="handout.css"><style>:root { --accent: #c4652a; }</style></head>
+<body><svg width="0" height="0" style="position:absolute"><defs>
+<pattern id="wv" width="160" height="60" patternUnits="userSpaceOnUse">
+<path d="M0 30 Q 20 5 40 30 T 80 30 T 120 30 T 160 30" fill="none" stroke="#e6dfcf" stroke-width="7" stroke-linecap="round"/>
+</pattern></defs></svg>
+<section class="page">
+  <svg class="waves" width="100%" height="100%"><rect width="100%" height="100%" fill="url(#wv)"/></svg>
+  <header><div class="kicker">ECT Reference · 03</div><h1>MIRRORED LOBES</h1>
+    <div class="banner">WHY WE DON&#x27;T CALL THEM</div><p class="intro">The transition is still on the ~40° line, but the loops bulge the opposite way from the cal flaws. Here&#x27;s what that means.</p></header>
+  <div class="key"><b>KEY IDEA</b><p>The angle says through-wall. The loops say it isn&#x27;t behaving like a wall flaw. Don&#x27;t size it on the flaw curve.</p></div>
+  <div class="main"><div><div class="sec"><div class="head"><div class="num">1</div><div class="pill">Why there are loops at all</div><span class="tag">Solid</span></div><ul><li>A differential channel shows coil A minus coil B.</li><li>If the angle stayed exactly the same as the coils passed, you&#x27;d get a straight line, not loops.</li><li>The loops exist because the angle shifts a little during the pass.</li></ul></div><div class="sec"><div class="head"><div class="num">2</div><div class="pill">Why the angle shifts</div><span class="tag warn">Reasoning</span></div><ul><li>Directly over the flaw, eddy currents reach it by the shortest path.</li><li>Approaching or leaving, they reach it at an angle through more metal, so there&#x27;s a little more lag.</li><li>With a real wall flaw this drift always goes the same way. That&#x27;s why all your cal flaws open the same way.</li></ul></div><div class="sec"><div class="head"><div class="num">3</div><div class="pill">What mirrored means</div></div><ul><li>The drift runs the opposite way, so the signal doesn&#x27;t behave like a flaw seen through the wall.</li><li>Two things overlapping: a small flaw plus a dent, deposit, or support edge.</li><li>A shape or fit change: a ding, dent, or probe wobble.</li><li>Something outside the tube: a loose part, deposit, or support.</li></ul></div><div class="sec"><div class="head"><div class="num">4</div><div class="pill">Not the same as a reversed trace</div></div><ul><li>If the whole signal traces backward, check scan direction (push vs. pull) first.</li><li>If everything in the tube is reversed, it&#x27;s setup, not the signal.</li><li>A lone reversed signal can mean added material, or the far end of a long flaw (it pairs with the start).</li></ul></div></div><div><div class="card fig">
+<svg viewBox="0 0 230 140" fill="none" font-family="JetBrains Mono" font-size="8">
+  <path d="M58 12V112M8 62H108" stroke="#dfdacd" stroke-width="1"/>
+  <path d="M172 12V112M122 62H222" stroke="#dfdacd" stroke-width="1"/>
+  <g transform="translate(58 62) rotate(-40) scale(.55)">
+    <line x1="-100" y1="0" x2="100" y2="0" stroke="#13294b" stroke-dasharray="5 6"/>
+    <path d="M0 0 C 20 -6, 70 -34, 80 -14 C 88 2, 40 4, 0 0 C -40 -4, -88 -2, -80 14 C -70 34, -20 6, 0 0 Z" stroke="#1d7f86" stroke-width="4.4" stroke-linejoin="round"/></g>
+  <g transform="translate(172 62) rotate(-40) scale(.55 -.55)">
+    <line x1="-100" y1="0" x2="100" y2="0" stroke="#13294b" stroke-dasharray="5 6"/>
+    <path d="M0 0 C 20 -6, 70 -34, 80 -14 C 88 2, 40 4, 0 0 C -40 -4, -88 -2, -80 14 C -70 34, -20 6, 0 0 Z" stroke="#c4652a" stroke-width="4.4" stroke-linejoin="round"/></g>
+  <text x="58" y="128" text-anchor="middle" fill="#1d7f86">✓ matches cal</text>
+  <text x="172" y="128" text-anchor="middle" fill="#c4652a">✗ mirrored</text>
+</svg><div class="cap">Same transition line, loops on opposite sides (illustrative).</div></div><div class="card "><h4>Check it</h4><ul><li>Compare with the ID groove and OD flaws on your cal standard</li><li>Mirrored on every channel, or only one?</li><li>Which way does the absolute channel swing?</li><li>Same spot on nearby tubes and previous data</li></ul></div><div class="card dark"><h4>If the ID groove opens this way</h4><ul><li>Some setups may show ID signals like this. Ask your Level III how your procedure treats it.</li></ul></div></div></div>
+  <div class="tips"><div class="t">QUICK<br>TIPS</div><div>Your depth curve only works for signals that behave like the cal flaws.</div><div>&#x27;Reasoning&#x27; sections are physics-based. Confirm with your Level III.</div><div>Can&#x27;t explain it? Flag it.</div></div>
+  <footer><span>Draft · check names &amp; values against your site procedure</span><span>ECT Reference · 03</span></footer>
+</section></body></html>
