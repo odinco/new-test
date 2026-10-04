@@ -13,19 +13,19 @@
   <div class="main"><div><div class="sec"><div class="head"><div class="num">1</div><div class="pill">The shape</div></div><ul><li>Differential: a figure-8, with one loop for each coil as it passes the flaw.</li><li>A clean flaw is smooth, closed, and fairly even. It starts and ends at null.</li><li>Absolute: a single loop. Better for gradual change like wear or thinning.</li><li>Differential is better for sudden change like pits and cracks.</li></ul></div><div class="sec"><div class="head"><div class="num">2</div><div class="pill">Reading the angle</div></div><ul><li>A through-wall hole sits on your reference line (about 40° on most setups).</li><li>OD flaws rotate past that line as they get shallower.</li><li>ID flaws sit on the other side of the line.</li><li>Decide ID or OD before you read depth off the curve.</li></ul></div><div class="sec"><div class="head"><div class="num">3</div><div class="pill">How a real flaw behaves</div></div><ul><li>Shows on more than one frequency, at the same axial spot.</li><li>Traces the same way as your cal flaws.</li><li>Repeats on a rescan. Noise doesn&#x27;t.</li><li>Doesn&#x27;t lie flat along the probe-motion line. Flat is usually wobble or lift-off.</li></ul></div><div class="sec"><div class="head"><div class="num">4</div><div class="pill">Which frequency sees what</div></div><ul><li>High frequency (CH1) is most sensitive at the ID surface.</li><li>Lower frequencies reach deeper into the wall and help with OD flaws.</li><li>Very low frequency is for supports, deposits, and landmarks, not sizing.</li></ul></div></div><div><div class="card fig">
 <svg viewBox="0 0 230 190" fill="none" font-family="JetBrains Mono" font-size="8">
   <path d="M115 10V180M10 95H220" stroke="#dfdacd" stroke-width="1"/>
-  <text x="218" y="108" text-anchor="end" fill="#6b7384">probe motion</text>
-  <g transform="translate(115 95) rotate(-40)">
+  <text x="12" y="108" fill="#6b7384">probe motion</text>
+  <g transform="translate(115 95) rotate(40)">
     <line x1="-100" y1="0" x2="100" y2="0" stroke="#13294b" stroke-dasharray="3 4"/>
     <path d="M0 0 C 20 -6, 70 -34, 80 -14 C 88 2, 40 4, 0 0 C -40 -4, -88 -2, -80 14 C -70 34, -20 6, 0 0 Z" stroke="#c4652a" stroke-width="2.6" stroke-linejoin="round"/>
   </g>
-  <path d="M150 95 A 35 35 0 0 0 142 72" stroke="#13294b" stroke-width="1.4"/>
-  <text x="156" y="80" fill="#13294b">≈40°</text>
+  <path d="M80 95 A 35 35 0 0 1 88.2 72.5" stroke="#13294b" stroke-width="1.4"/>
+  <text x="90" y="108" fill="#13294b" text-anchor="middle">≈40°</text>
   <circle cx="115" cy="95" r="3.2" fill="#13294b"/>
-  <text x="108" y="114" fill="#13294b" text-anchor="end">null</text>
-  <text x="176" y="26" fill="#c4652a">coil A loop</text>
-  <text x="12" y="172" fill="#c4652a">coil B loop</text>
-  <text x="12" y="22" fill="#13294b">angle → depth</text>
-  <text x="12" y="34" fill="#13294b">size → volts</text>
+  <text x="121" y="88" fill="#13294b">null</text>
+  <text x="12" y="26" fill="#c4652a">coil A loop</text>
+  <text x="218" y="172" fill="#c4652a" text-anchor="end">coil B loop</text>
+  <text x="218" y="22" fill="#13294b" text-anchor="end">angle → depth</text>
+  <text x="218" y="34" fill="#13294b" text-anchor="end">size → volts</text>
 </svg><div class="cap">Typical through-wall flaw on a differential channel (illustrative).</div></div><div class="card red"><h4>Red flags</h4><ul><li>Messy or open shape that doesn&#x27;t return to null</li><li>Shows on one frequency only</li><li>Mostly horizontal</li><li>Changes from scan to scan</li><li>Lobes mirrored compared with the cal flaws</li></ul></div></div></div>
   <div class="tips"><div class="t">QUICK<br>TIPS</div><div>Compare every call with the same flaw type on the cal standard.</div><div>Size on the channel your procedure names.</div><div>Not sure? Flag it. Don&#x27;t guess.</div></div>
   <footer><span>Draft · check names &amp; values against your site procedure</span><span>ECT Reference · 01</span></footer>

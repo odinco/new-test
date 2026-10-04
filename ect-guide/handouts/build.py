@@ -20,19 +20,19 @@ EIGHT = ("M0 0 C 20 -6, 70 -34, 80 -14 C 88 2, 40 4, 0 0 "
 FIG_FLAW = f"""
 <svg viewBox="0 0 230 190" fill="none" font-family="JetBrains Mono" font-size="8">
   {GRID.format(x=115, y0=10, y1=180, x0=10, x1=220, y=95)}
-  <text x="218" y="108" text-anchor="end" fill="#6b7384">probe motion</text>
-  <g transform="translate(115 95) rotate(-40)">
+  <text x="12" y="108" fill="#6b7384">probe motion</text>
+  <g transform="translate(115 95) rotate(40)">
     <line x1="-100" y1="0" x2="100" y2="0" stroke="{NAVY}" stroke-dasharray="3 4"/>
     <path d="{EIGHT}" stroke="{COPPER}" stroke-width="2.6" stroke-linejoin="round"/>
   </g>
-  <path d="M150 95 A 35 35 0 0 0 142 72" stroke="{NAVY}" stroke-width="1.4"/>
-  <text x="156" y="80" fill="{NAVY}">≈40°</text>
+  <path d="M80 95 A 35 35 0 0 1 88.2 72.5" stroke="{NAVY}" stroke-width="1.4"/>
+  <text x="90" y="108" fill="{NAVY}" text-anchor="middle">≈40°</text>
   <circle cx="115" cy="95" r="3.2" fill="{NAVY}"/>
-  <text x="108" y="114" fill="{NAVY}" text-anchor="end">null</text>
-  <text x="176" y="26" fill="{COPPER}">coil A loop</text>
-  <text x="12" y="172" fill="{COPPER}">coil B loop</text>
-  <text x="12" y="22" fill="{NAVY}">angle → depth</text>
-  <text x="12" y="34" fill="{NAVY}">size → volts</text>
+  <text x="121" y="88" fill="{NAVY}">null</text>
+  <text x="12" y="26" fill="{COPPER}">coil A loop</text>
+  <text x="218" y="172" fill="{COPPER}" text-anchor="end">coil B loop</text>
+  <text x="218" y="22" fill="{NAVY}" text-anchor="end">angle → depth</text>
+  <text x="218" y="34" fill="{NAVY}" text-anchor="end">size → volts</text>
 </svg>"""
 
 def _blip(x, odd=False):
@@ -55,10 +55,10 @@ FIG_MIRROR = f"""
 <svg viewBox="0 0 230 140" fill="none" font-family="JetBrains Mono" font-size="8">
   {GRID.format(x=58, y0=12, y1=112, x0=8, x1=108, y=62)}
   {GRID.format(x=172, y0=12, y1=112, x0=122, x1=222, y=62)}
-  <g transform="translate(58 62) rotate(-40) scale(.55)">
+  <g transform="translate(58 62) rotate(40) scale(.55)">
     <line x1="-100" y1="0" x2="100" y2="0" stroke="{NAVY}" stroke-dasharray="5 6"/>
     <path d="{EIGHT}" stroke="{TEAL}" stroke-width="4.4" stroke-linejoin="round"/></g>
-  <g transform="translate(172 62) rotate(-40) scale(.55 -.55)">
+  <g transform="translate(172 62) rotate(40) scale(.55 -.55)">
     <line x1="-100" y1="0" x2="100" y2="0" stroke="{NAVY}" stroke-dasharray="5 6"/>
     <path d="{EIGHT}" stroke="{COPPER}" stroke-width="4.4" stroke-linejoin="round"/></g>
   <text x="58" y="128" text-anchor="middle" fill="{TEAL}">✓ matches cal</text>
