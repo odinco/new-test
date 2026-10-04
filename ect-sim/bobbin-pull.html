@@ -1,0 +1,380 @@
+<title>Bobbin Probe Pull</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: instrument console. Standard cutaway across the top, three scope windows below, readouts last. */
+  :root {
+    --bg: #0e151d; --panel: #141f2a; --panel-2: #1a2734; --grid: #22323f; --line: #2c3f50;
+    --fg: #dbe5ee; --muted: #8ea3b6; --amber: #f0b03a; --cyan: #52c4d8; --flaw: #e46a4f; --metal: #5f7182; --metal-2: #48596a;
+    --ok: #7fcf8a;
+    --display: "Chakra Petch", "Arial Narrow", sans-serif;
+    --body: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  html, body { background: var(--bg); color: var(--fg); }
+  body { font-family: var(--body); font-size: 14px; line-height: 1.45; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 32px; display: grid; gap: 14px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 18px; }
+  h1 { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 3vw, 30px); letter-spacing: .02em; margin: 0; text-wrap: balance; }
+  h1 span { color: var(--amber); }
+  header p { margin: 0; color: var(--muted); max-width: 62ch; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; min-width: 0; }
+  .ph { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+  .ph h2 { font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; margin: 0; color: var(--fg); }
+  .ph small { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  canvas { display: block; width: 100%; border-radius: 6px; background: var(--panel-2); touch-action: none; }
+  #std { height: 230px; cursor: ew-resize; }
+  .scopes { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; }
+  .scope canvas { aspect-ratio: 1 / 1; }
+  .scope.wide { grid-column: span 2; }
+  .scope.wide canvas { aspect-ratio: 2 / 1; }
+  @media (max-width: 620px) { .scope.wide { grid-column: auto; } .scope.wide canvas { aspect-ratio: 4 / 3; } }
+
+  .controls { display: grid; gap: 10px; margin-top: 10px; }
+  .pos { display: flex; align-items: center; gap: 12px; }
+  .pos output { font-family: var(--mono); font-size: 13px; color: var(--amber); min-width: 8.5ch; text-align: right; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--amber); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  button { font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--bg);
+           background: var(--amber); border: 0; border-radius: 7px; padding: 8px 14px; cursor: pointer; }
+  button.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  label { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+  label.slider { display: grid; grid-template-columns: auto 1fr auto; min-width: 230px; flex: 1 1 230px; }
+  label output { font-family: var(--mono); color: var(--fg); font-size: 12px; min-width: 6ch; text-align: right; font-variant-numeric: tabular-nums; }
+  select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font: inherit; }
+
+  .bottom { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 14px; }
+  @media (max-width: 860px) { .bottom { grid-template-columns: minmax(0, 1fr); } }
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-family: var(--display); font-weight: 600; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+       padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  td.num { font-family: var(--mono); text-align: right; }
+  th.num { text-align: right; }
+  tr.active td { background: rgba(240,176,58,.08); }
+  tr.active td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
+  .pending { color: var(--metal); }
+  .notes ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; color: var(--muted); }
+  .notes b { color: var(--fg); font-weight: 600; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+  .foot { color: var(--metal); font-size: 12px; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Bobbin Probe <span>Pull</span></h1>
+    <p>Drag the probe through the calibration standard and watch each window build the signal. Two coils, one flaw at a time.</p>
+  </header>
+
+  <section class="panel" aria-label="Calibration standard">
+    <div class="ph"><h2>Calibration standard · side cutaway</h2><small id="where">Coil A leads · pull left to right</small></div>
+    <canvas id="std" aria-label="Probe inside the tube standard. Drag to move the probe."></canvas>
+    <div class="controls">
+      <div class="pos">
+        <input id="pos" type="range" min="0" max="11" step="0.002" value="2.0" aria-label="Probe position in inches">
+        <output id="posOut" for="pos">2.000 in</output>
+      </div>
+      <div class="row">
+        <button id="play" type="button">Pull probe</button>
+        <button id="clear" class="ghost" type="button">Clear screens</button>
+        <label for="speed">Speed
+          <select id="speed"><option value="0.6">Slow</option><option value="1.4" selected>Normal</option><option value="3">Fast</option></select>
+        </label>
+        <label for="mirror"><input id="mirror" type="checkbox"> Mirrored lobes</label>
+      </div>
+      <div class="row">
+        <label class="slider" for="spacing">Coil spacing <input id="spacing" type="range" min="0.03" max="0.3" step="0.005" value="0.06"><output id="spacingOut">0.060 in</output></label>
+        <label class="slider" for="wDepth">Wear scar depth <input id="wDepth" type="range" min="10" max="80" step="1" value="40"><output id="wDepthOut">40%</output></label>
+        <label class="slider" for="wLen">Wear scar length <input id="wLen" type="range" min="0.05" max="1.2" step="0.01" value="0.25"><output id="wLenOut">0.25 in</output></label>
+      </div>
+    </div>
+  </section>
+
+  <div class="scopes">
+    <section class="panel scope" aria-label="Differential Lissajous">
+      <div class="ph"><h2>Lissajous · diff</h2><small>Coil A − coil B</small></div>
+      <canvas id="liss"></canvas>
+    </section>
+    <section class="panel scope" aria-label="Impedance plane">
+      <div class="ph"><h2>Impedance · abs</h2><small>Coil A alone</small></div>
+      <canvas id="imp"></canvas>
+    </section>
+    <section class="panel scope wide" aria-label="Amplitude strip chart">
+      <div class="ph"><h2>Amplitude · strip chart</h2>
+        <div class="legend"><span><i style="background:var(--amber)"></i>Diff vertical</span><span><i style="background:var(--cyan)"></i>Diff horizontal</span><span><i style="background:var(--ok)"></i>Abs vertical</span></div>
+      </div>
+      <canvas id="strip"></canvas>
+    </section>
+  </div>
+
+  <div class="bottom">
+    <section class="panel">
+      <div class="ph"><h2>Measurements</h2><small>Normalized: 4×20% FBH = 4.0 V (diff)</small></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Flaw</th><th class="num">Diff Vpp</th><th class="num">Diff angle</th><th class="num">Depth from curve</th><th class="num">Abs Vpp</th></tr></thead>
+          <tbody id="meas"></tbody>
+        </table>
+      </div>
+      <p class="foot">Values fill in once the probe has passed each flaw. Angles use the 40° up-left convention.</p>
+    </section>
+    <section class="panel notes">
+      <div class="ph"><h2>Things to try</h2></div>
+      <ul>
+        <li><b>Stop with coil A on the 100% hole.</b> The differential has drawn one loop. Keep pulling and coil B draws the second loop on the other side of null.</li>
+        <li><b>Stretch the wear scar past the coil spacing.</b> The differential splits into two small signals at the scar's ends while the absolute stays one hump.</li>
+        <li><b>Widen the coil spacing.</b> Short flaws get a fuller differential response; long flaws still split.</li>
+        <li><b>Tick "Mirrored lobes".</b> Same 40° transition, loops on the wrong sides of the line.</li>
+      </ul>
+      <p class="foot">Teaching model: simplified coil response with an illustrative phase-to-depth curve. Not for sizing real data.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  const D2R = Math.PI / 180, SIG = 0.07, STEP = 0.004, LEN = 11;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const C = {}; ['bg','panel-2','grid','line','fg','muted','amber','cyan','flaw','metal','metal-2','ok'].forEach(k => C[k] = css('--' + k));
+
+  // Illustrative phase-to-depth curve (40° = 100% TW, OD rotates up toward vertical and past, ID drops toward horizontal)
+  const odAngle = d => 40 + 115 * Math.pow(1 - d, 1.1);
+  const idAngle = d => 40 - 30 * (1 - d);
+  const depthFromAngle = a => a >= 40 ? { side: 'OD', d: 1 - Math.pow(Math.min(1, (a - 40) / 115), 1 / 1.1) }
+                                      : { side: 'ID', d: Math.max(0, 1 - (40 - a) / 30) };
+
+  const els = id => document.getElementById(id);
+  const pos = els('pos'), spacing = els('spacing'), wDepth = els('wDepth'), wLen = els('wLen'), mirror = els('mirror');
+
+  function flaws() {
+    const wd = +wDepth.value / 100;
+    return [
+      { name: '100% TW hole', x: 1.5, L: 0.06, depth: 1,   side: 'TW', a: 1.0 },
+      { name: '60% OD FBH',   x: 3.0, L: 0.11, depth: 0.6, side: 'OD', a: 0.70 },
+      { name: '40% OD FBH',   x: 4.5, L: 0.11, depth: 0.4, side: 'OD', a: 0.50 },
+      { name: '4×20% OD FBH', x: 6.0, L: 0.11, depth: 0.2, side: 'OD', a: 0.42 },
+      { name: '10% ID groove', x: 7.5, L: 0.06, depth: 0.1, side: 'ID', a: 0.45 },
+      { name: 'OD wear scar', x: 9.2, L: +wLen.value, depth: wd, side: 'OD', a: 0.25 + 0.6 * wd, wear: true },
+    ].map(f => ({ ...f, th: f.side === 'ID' ? idAngle(f.depth) : odAngle(f.depth) }));
+  }
+
+  function erf(x) { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; }
+  const foot = (u, L) => 0.5 * (erf((u + L / 2) / (Math.SQRT2 * SIG)) - erf((u - L / 2) / (Math.SQRT2 * SIG)));
+
+  // One coil's response at axial position p: sum over flaws. Phase lags a little more at the edges of each response,
+  // which is what opens the loops. Negative drift puts the upper-left loop over the 40° line.
+  function coil(p, F, k) {
+    let re = 0, im = 0;
+    for (const f of F) {
+      const g = foot(p - f.x, f.L); if (g < 1e-4) continue;
+      const g0 = foot(0, f.L), th = (f.th + k * (1 - g / g0)) * D2R;
+      re += f.a * g * Math.cos(th); im += f.a * g * Math.sin(th);
+    }
+    return [re, im];
+  }
+
+  let model = null;
+  function build() {
+    const F = flaws(), s = +spacing.value, k = mirror.checked ? 12 : -12, n = Math.round(LEN / STEP) + 1;
+    const diff = new Float64Array(n * 2), abs = new Float64Array(n * 2);
+    for (let i = 0; i < n; i++) {
+      const x = i * STEP, A = coil(x + s / 2, F, k), B = coil(x - s / 2, F, k);
+      diff[2 * i] = A[0] - B[0]; diff[2 * i + 1] = A[1] - B[1]; abs[2 * i] = A[0]; abs[2 * i + 1] = A[1];
+    }
+    // normalize so the 4×20% FBH differential reads 4.0 V
+    // set phase: rotate so the through-wall hole reads exactly 40°, like setting it on the instrument
+    const rot = (40 - measure(diff, F[0], s).angle) * D2R, cr = Math.cos(rot), sr = Math.sin(rot);
+    for (const arr of [diff, abs]) for (let i = 0; i < n; i++) { const re = arr[2 * i], im = arr[2 * i + 1]; arr[2 * i] = re * cr - im * sr; arr[2 * i + 1] = re * sr + im * cr; }
+    // set volts: 4×20% FBH differential = 4.0 V
+    const scale = 4 / measure(diff, F[3], s).vpp;
+    for (let i = 0; i < diff.length; i++) { diff[i] *= scale; abs[i] *= scale; }
+    const meas = F.map(f => ({ ...measure(diff, f, s), abs: measure(abs, f, s).vpp }));
+    let dMax = 0, aMax = 0;
+    for (let i = 0; i < n; i++) { dMax = Math.max(dMax, Math.hypot(diff[2 * i], diff[2 * i + 1])); aMax = Math.max(aMax, Math.hypot(abs[2 * i], abs[2 * i + 1])); }
+    model = { F, s, n, diff, abs, meas, dMax, aMax };
+  }
+
+  // Vpp = longest chord between two trace points around the flaw; angle of that chord in the 40° up-left convention
+  function measure(arr, f, s) {
+    const half = f.L / 2 + s + 4 * SIG, i0 = Math.max(0, Math.floor((f.x - half) / STEP)), i1 = Math.min(arr.length / 2 - 1, Math.ceil((f.x + half) / STEP));
+    let best = 0, bi = i0, bj = i0;
+    for (let i = i0; i <= i1; i += 2) for (let j = i + 2; j <= i1; j += 2) {
+      const d = Math.hypot(arr[2 * i] - arr[2 * j], arr[2 * i + 1] - arr[2 * j + 1]); if (d > best) { best = d; bi = i; bj = j; }
+    }
+    let dre = arr[2 * bj] - arr[2 * bi], dim = arr[2 * bj + 1] - arr[2 * bi + 1];
+    let ang = Math.atan2(dim, dre) / D2R; ang = ((ang % 180) + 180) % 180;
+    return { vpp: best, angle: ang, end: f.x + half };
+  }
+
+  // ---------- drawing helpers
+  function setup(cv) {
+    const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx, w: r.width, h: r.height };
+  }
+  const font = (px, fam = 'mono') => `${px}px ${css('--' + fam)}`;
+
+  function scopeFrame(ctx, w, h) {
+    ctx.fillStyle = C['panel-2']; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    for (let i = 1; i < 8; i++) { const x = (w * i) / 8, y = (h * i) / 8; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+    ctx.strokeStyle = C.line; ctx.beginPath(); ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+  }
+  // user frame (re, im) -> screen: angle measured up from the LEFT horizontal
+  const toScreen = (re, im, cx, cy, sc) => [cx - re * sc, cy - im * sc];
+
+  let traceStart = 0; // index where the screens were last cleared
+
+  function drawScope(cv, arr, maxMag, idx, opts) {
+    const { ctx, w, h } = setup(cv); scopeFrame(ctx, w, h);
+    const cx = w / 2, cy = h / 2, sc = (Math.min(w, h) * 0.42) / Math.max(maxMag, 1e-6);
+    if (opts.refLine) {
+      ctx.save(); ctx.setLineDash([4, 5]); ctx.strokeStyle = C.muted; ctx.globalAlpha = .7; ctx.beginPath();
+      const L = Math.min(w, h) * 0.48, c = Math.cos(40 * D2R), s = Math.sin(40 * D2R);
+      ctx.moveTo(cx - c * L, cy - s * L); ctx.lineTo(cx + c * L, cy + s * L); ctx.stroke(); ctx.restore();
+      ctx.fillStyle = C.muted; ctx.font = font(11); ctx.fillText('40° = 100% TW', 10, 18);
+    }
+    ctx.lineWidth = 2; ctx.strokeStyle = opts.color; ctx.lineJoin = 'round'; ctx.beginPath();
+    for (let i = traceStart; i <= idx; i++) { const [x, y] = toScreen(arr[2 * i], arr[2 * i + 1], cx, cy, sc); i === traceStart ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+    ctx.stroke();
+    const [dx, dy] = toScreen(arr[2 * idx], arr[2 * idx + 1], cx, cy, sc);
+    ctx.fillStyle = C.fg; ctx.beginPath(); ctx.arc(dx, dy, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = C.muted; ctx.font = font(11); ctx.fillText('null', cx + 6, cy - 6);
+    const mag = Math.hypot(arr[2 * idx], arr[2 * idx + 1]);
+    ctx.textAlign = 'right'; ctx.fillText(`${mag.toFixed(2)} V`, w - 10, h - 10); ctx.textAlign = 'left';
+  }
+
+  function drawStrip(cv, idx) {
+    const { ctx, w, h } = setup(cv); ctx.fillStyle = C['panel-2']; ctx.fillRect(0, 0, w, h);
+    const padL = 8, padR = 8, top = 10, bot = 24, pw = w - padL - padR, ph = h - top - bot;
+    const X = x => padL + (x / LEN) * pw, mid = top + ph / 2, sc = (ph / 2 * 0.9) / Math.max(model.dMax, model.aMax, 1e-6);
+    ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+    for (let i = 0; i <= LEN; i++) { ctx.beginPath(); ctx.moveTo(X(i), top); ctx.lineTo(X(i), top + ph); ctx.stroke(); }
+    ctx.strokeStyle = C.line; ctx.beginPath(); ctx.moveTo(padL, mid); ctx.lineTo(w - padR, mid); ctx.stroke();
+    ctx.fillStyle = C.muted; ctx.font = font(10);
+    for (let i = 0; i <= LEN; i += 1) { ctx.textAlign = i === 0 ? 'left' : i === LEN ? 'right' : 'center'; ctx.fillText(`${i}"`, X(i), h - 8); }
+    ctx.textAlign = 'left';
+    const series = [[model.diff, 1, C.amber, -1], [model.diff, 0, C.cyan, 1], [model.abs, 1, C.ok, -1]];
+    for (const [arr, comp, col, sign] of series) {
+      ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.beginPath();
+      for (let i = traceStart; i <= idx; i++) { const x = X(i * STEP), y = mid + sign * arr[2 * i + comp] * sc; i === traceStart ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+      ctx.stroke();
+    }
+    ctx.strokeStyle = C.fg; ctx.globalAlpha = .5; ctx.beginPath(); ctx.moveTo(X(idx * STEP), top); ctx.lineTo(X(idx * STEP), top + ph); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+
+  function drawStandard(cv, p) {
+    const { ctx, w, h } = setup(cv);
+    ctx.fillStyle = C['panel-2']; ctx.fillRect(0, 0, w, h);
+    const view = Math.min(LEN, Math.max(1.6, w / 420)), x0 = Math.min(LEN - view, Math.max(0, p - view / 2));
+    const X = x => ((x - x0) / view) * w, wall = 34, boreTop = 70, boreBot = h - 70;
+    // tube walls
+    ctx.fillStyle = C.metal; ctx.fillRect(0, boreTop - wall, w, wall); ctx.fillRect(0, boreBot, w, wall);
+    ctx.fillStyle = C['metal-2']; ctx.fillRect(0, boreTop - 3, w, 3); ctx.fillRect(0, boreBot, w, 3);
+    ctx.fillStyle = C.muted; ctx.font = font(10); ctx.fillText('OD', 6, boreTop - wall - 6); ctx.fillText('ID', 6, boreTop + 14);
+    // inch ticks
+    ctx.strokeStyle = C.line; ctx.fillStyle = C.muted;
+    for (let i = Math.ceil(x0 * 4) / 4; i <= x0 + view; i += 0.25) {
+      const x = X(i), major = Math.abs(i - Math.round(i)) < 1e-6;
+      ctx.beginPath(); ctx.moveTo(x, h - 4); ctx.lineTo(x, h - (major ? 14 : 8)); ctx.stroke();
+      if (major && x > 14 && x < w - 14) { ctx.textAlign = 'center'; ctx.fillText(`${Math.round(i)}"`, x, h - 18); }
+    }
+    ctx.textAlign = 'left';
+    // flaws
+    for (const f of model.F) {
+      const xa = X(f.x - f.L / 2), xb = X(f.x + f.L / 2); if (xb < -40 || xa > w + 40) continue;
+      const dpx = wall * f.depth, wpx = Math.max(3, xb - xa);
+      ctx.fillStyle = C['panel-2'];
+      if (f.side === 'ID') { ctx.fillRect(xa, boreTop - dpx, wpx, dpx); ctx.fillRect(xa, boreBot, wpx, dpx); }
+      else if (f.side === 'TW') { ctx.fillRect(xa, boreTop - wall, wpx, wall); }
+      else { ctx.fillRect(xa, boreTop - wall, wpx, dpx); if (f.name.startsWith('4×')) ctx.fillRect(xa, boreBot + wall - dpx, wpx, dpx); if (f.wear) ctx.fillRect(xa, boreBot + wall - dpx, wpx, dpx); }
+      ctx.strokeStyle = C.flaw; ctx.lineWidth = 1.5;
+      if (f.side === 'ID') { ctx.strokeRect(xa, boreTop - dpx, wpx, dpx); ctx.strokeRect(xa, boreBot, wpx, dpx); }
+      else if (f.side === 'TW') ctx.strokeRect(xa, boreTop - wall, wpx, wall);
+      else { ctx.strokeRect(xa, boreTop - wall, wpx, dpx); if (f.name.startsWith('4×') || f.wear) ctx.strokeRect(xa, boreBot + wall - dpx, wpx, dpx); }
+      ctx.fillStyle = C.flaw; ctx.font = font(11); ctx.textAlign = 'center'; ctx.fillText(f.name, (xa + xb) / 2, boreTop - wall - 8); ctx.textAlign = 'left';
+    }
+    // probe body
+    const s = model.s, ph = (boreBot - boreTop) * 0.56, py = (boreTop + boreBot) / 2 - ph / 2;
+    const pxA = X(p + s / 2), pxB = X(p - s / 2), bodyL = X(p - s / 2 - 0.35), bodyR = X(p + s / 2 + 0.35);
+    ctx.strokeStyle = C.muted; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bodyL, (boreTop + boreBot) / 2); ctx.lineTo(Math.max(0, bodyL - 400), (boreTop + boreBot) / 2); ctx.stroke();
+    ctx.fillStyle = '#2a3a49'; ctx.strokeStyle = C.line; roundRect(ctx, bodyL, py, bodyR - bodyL, ph, ph / 2); ctx.fill(); ctx.stroke();
+    // eddy-current field under each coil
+    const field = (x, col) => { for (const y of [boreTop - wall / 2, boreBot + wall / 2]) { const g = ctx.createRadialGradient(x, y, 2, x, y, 42); g.addColorStop(0, col + 'aa'); g.addColorStop(1, col + '00'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, 44, wall * 0.9, 0, 0, Math.PI * 2); ctx.fill(); } };
+    field(pxA, C.amber); field(pxB, C.cyan);
+    const cw = Math.max(5, (SIG * 0.5 / view) * w);
+    for (const [x, col, lab] of [[pxA, C.amber, 'A'], [pxB, C.cyan, 'B']]) {
+      ctx.fillStyle = col; ctx.fillRect(x - cw / 2, py - 2, cw, ph + 4);
+      ctx.fillStyle = col; ctx.font = `600 12px ${css('--display')}`; ctx.textAlign = 'center'; ctx.fillText(lab, x + (lab === 'A' ? 8 : -8), lab === 'A' ? py - 8 : py + ph + 18); ctx.textAlign = 'left';
+    }
+  }
+  function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+  function renderTable(p) {
+    const rows = model.F.map((f, i) => {
+      const m = model.meas[i], passed = p >= m.end, near = Math.abs(p - f.x) < f.L / 2 + 0.3;
+      const df = depthFromAngle(m.angle);
+      const cells = passed
+        ? `<td class="num">${m.vpp.toFixed(2)} V</td><td class="num">${m.angle.toFixed(0)}°</td><td class="num">${(df.d * 100).toFixed(0)}% ${df.side}</td><td class="num">${m.abs.toFixed(2)} V</td>`
+        : `<td class="num pending">—</td><td class="num pending">—</td><td class="num pending">—</td><td class="num pending">—</td>`;
+      return `<tr class="${near ? 'active' : ''}"><td>${f.name}${f.wear ? ` <span class="pending">(${f.L.toFixed(2)}")</span>` : ''}</td>${cells}</tr>`;
+    });
+    els('meas').innerHTML = rows.join('');
+  }
+
+  function render() {
+    const p = +pos.value, idx = Math.min(model.n - 1, Math.round(p / STEP));
+    if (idx < traceStart) traceStart = idx;
+    els('posOut').textContent = `${p.toFixed(3)} in`;
+    drawStandard(els('std'), p);
+    drawScope(els('liss'), model.diff, model.dMax, idx, { color: C.amber, refLine: true });
+    drawScope(els('imp'), model.abs, model.aMax, idx, { color: C.ok, refLine: false });
+    drawStrip(els('strip'), idx);
+    renderTable(p);
+  }
+
+  // ---------- interaction
+  let playing = false, last = 0;
+  function tick(t) {
+    if (!playing) return;
+    const dt = last ? (t - last) / 1000 : 0; last = t;
+    let p = +pos.value + dt * +els('speed').value;
+    if (p >= LEN) { p = LEN; setPlaying(false); }
+    pos.value = p; render(); requestAnimationFrame(tick);
+  }
+  function setPlaying(on) {
+    playing = on; last = 0; els('play').textContent = on ? 'Pause' : 'Pull probe';
+    if (on) { if (+pos.value >= LEN - 0.01) { pos.value = 0; traceStart = 0; } requestAnimationFrame(tick); }
+  }
+  els('play').addEventListener('click', () => setPlaying(!playing));
+  els('clear').addEventListener('click', () => { traceStart = Math.round(+pos.value / STEP); render(); });
+  pos.addEventListener('input', render);
+  const out = (inp, o, f) => { const u = () => { els(o).textContent = f(+inp.value); }; inp.addEventListener('input', () => { u(); build(); render(); }); u(); };
+  out(spacing, 'spacingOut', v => `${v.toFixed(3)} in`);
+  out(wDepth, 'wDepthOut', v => `${v}%`);
+  out(wLen, 'wLenOut', v => `${v.toFixed(2)} in`);
+  mirror.addEventListener('change', () => { build(); render(); });
+
+  // drag the probe directly on the standard
+  const std = els('std'); let dragging = false, dragX = 0, dragP = 0;
+  std.addEventListener('pointerdown', e => { dragging = true; dragX = e.clientX; dragP = +pos.value; std.setPointerCapture(e.pointerId); setPlaying(false); });
+  std.addEventListener('pointermove', e => {
+    if (!dragging) return; const r = std.getBoundingClientRect(), view = Math.min(LEN, Math.max(1.6, r.width / 420));
+    pos.value = Math.min(LEN, Math.max(0, dragP + ((e.clientX - dragX) / r.width) * view)); render();
+  });
+  std.addEventListener('pointerup', () => { dragging = false; });
+
+  window.addEventListener('resize', render);
+  build();
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(render);
+  render();
+})();
+</script>
