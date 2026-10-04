@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CoreStar ECT Guide</title>
+<link href="../pdf-design-examples/fonts/fonts.css" rel="stylesheet">
+<style>
+  @page { size: 8.5in 11in; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  :root { --navy: #13294b; --ink: #26303f; --paper: #f5f2ea; --copper: #c4652a; --teal: #1d7f86; --line: #9aa3b2; }
+  body { font-family: "DM Sans", sans-serif; color: var(--ink); }
+  .page { width: 8.5in; height: 11in; position: relative; overflow: hidden; background: var(--paper);
+          page-break-after: always; break-after: page; }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  .page.b { --accent: var(--teal); } .page.a { --accent: var(--copper); }
+
+  /* faint wave background */
+  .waves { position: absolute; inset: 0; opacity: .5; }
+
+  /* header */
+  header { position: relative; text-align: center; padding-top: 0.42in; }
+  .kicker { font-family: "JetBrains Mono", monospace; font-size: 8pt; letter-spacing: .18em; text-transform: uppercase; color: var(--navy); opacity: .75; }
+  h1 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 34pt; line-height: 1; letter-spacing: -.01em;
+       color: var(--navy); margin-top: 6px; }
+  .banner { display: inline-block; margin-top: 8px; background: var(--accent); color: #fff; border-radius: 14px;
+            padding: 6px 24px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 16pt; letter-spacing: .02em;
+            box-shadow: 0 4px 0 var(--navy); }
+  .intro { font-size: 10pt; color: #4a5465; margin: 9px auto 0; max-width: 5.4in; }
+
+  /* steps */
+  .steps { position: relative; margin-top: 0.26in; }
+  .step { position: relative; width: 5.35in; margin-bottom: 0.12in; }
+  .step .head { display: flex; align-items: center; }
+  .num { width: 0.42in; height: 0.42in; border: 2.5px solid var(--navy); border-radius: 12px; background: #fff;
+         display: flex; align-items: center; justify-content: center; font-family: "Bricolage Grotesque", sans-serif;
+         font-weight: 800; font-size: 15pt; color: var(--accent); position: relative; z-index: 2; flex: none; }
+  .pill { margin-left: -10px; background: var(--accent); color: #fff; border: 2.5px solid var(--navy); border-left: none;
+          border-radius: 0 99px 99px 0; padding: 4px 24px 4px 20px; font-family: "Bricolage Grotesque", sans-serif;
+          font-weight: 800; font-size: 12pt; letter-spacing: .06em; text-transform: uppercase; min-width: 2.7in; }
+  .dash { flex: 1; border-top: 1.5px dashed var(--line); margin-left: 12px; margin-top: 14px; }
+  .body { margin: 4px 0 0 0.56in; font-size: 9.4pt; line-height: 1.36; }
+  .check { display: inline-flex; gap: 6px; align-items: baseline; margin-top: 3px; font-size: 8.4pt; color: var(--navy);
+           background: #fff; border: 1px solid #dfdacd; border-radius: 8px; padding: 2px 8px; }
+  .check b { font-family: "JetBrains Mono", monospace; font-size: 7.4pt; letter-spacing: .08em; color: var(--accent); }
+  #wires-a, #wires-b { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+
+  /* icons & doodles */
+  .icon { position: absolute; z-index: 0; }
+  .doodle { position: absolute; }
+
+  /* footer */
+  footer { position: absolute; left: 0.6in; right: 0.6in; bottom: 0.38in; display: flex; justify-content: space-between;
+           font-family: "JetBrains Mono", monospace; font-size: 7pt; letter-spacing: .06em; color: #6b7384; }
+  .tips { position: absolute; left: 0.6in; right: 0.6in; bottom: 0.62in; background: var(--navy); color: #fff; border-radius: 14px;
+          padding: 8px 16px; display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 16px; align-items: center; font-size: 8.6pt; line-height: 1.35; }
+  .tips .t { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 11pt; color: #ffd27a; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <pattern id="wv" width="160" height="60" patternUnits="userSpaceOnUse">
+      <path d="M0 30 Q 20 5 40 30 T 80 30 T 120 30 T 160 30" fill="none" stroke="#e6dfcf" stroke-width="7" stroke-linecap="round"/>
+    </pattern>
+  </defs>
+</svg>
+
+<!-- ================= PAGE A: SETUP ================= -->
+<section class="page a">
+  <svg class="waves" width="100%" height="100%"><rect width="100%" height="100%" fill="url(#wv)"/></svg>
+
+  <header>
+    <div class="kicker">Eddy Current Testing · Part A</div>
+    <h1>CORESTAR ANALYSIS</h1>
+    <div class="banner">SETUP GUIDE</div>
+    <p class="intro">Six steps to build a setup you can trust before you look at a single tube.</p>
+  </header>
+
+  <div class="steps" id="steps-a">
+    <svg id="wires-a"></svg>
+    <div class="step" style="margin-left:1.25in">
+      <div class="head"><div class="num">1</div><div class="pill">Load the data</div><div class="dash"></div></div>
+      <div class="body">Open the exam data and the calibration file. Confirm the probe type, frequencies, and tube range match the inspection plan.
+        <br><span class="check"><b>CHECK</b> Cal standard ID matches the data sheet</span></div>
+    </div>
+    <div class="step" style="margin-left:0.55in">
+      <div class="head"><div class="num">2</div><div class="pill">Set up channels</div><div class="dash"></div></div>
+      <div class="body">Assign differential and absolute channels for each frequency. Build any required mixes (for example, support suppression) per your procedure.
+        <br><span class="check"><b>CHECK</b> Every channel is labeled and in the right order</span></div>
+    </div>
+    <div class="step" style="margin-left:1.25in">
+      <div class="head"><div class="num">3</div><div class="pill">Set the phase</div><div class="dash"></div></div>
+      <div class="body">On the cal standard, rotate so probe motion is horizontal. Set the through-wall hole signal to the angle your procedure calls for.
+        <br><span class="check"><b>CHECK</b> Signal travels in the expected direction</span></div>
+    </div>
+    <div class="step" style="margin-left:1.9in">
+      <div class="head"><div class="num">4</div><div class="pill">Set the voltage</div><div class="dash"></div></div>
+      <div class="body">Normalize the reference signal (for example, the 4 × 20% flat-bottom holes) to the voltage in your procedure. Apply it to all channels.
+        <br><span class="check"><b>CHECK</b> Reference reads the target voltage</span></div>
+    </div>
+    <div class="step" style="margin-left:1.05in">
+      <div class="head"><div class="num">5</div><div class="pill">Build the curve</div><div class="dash"></div></div>
+      <div class="body">Mark each cal flaw (100%, 60%, 40%, 20%) and save the phase-to-depth curve. Points should form a smooth line.
+        <br><span class="check"><b>CHECK</b> No point sits far off the curve</span></div>
+    </div>
+    <div class="step" style="margin-left:0.4in">
+      <div class="head"><div class="num">6</div><div class="pill">Save &amp; verify</div><div class="dash"></div></div>
+      <div class="body">Save the setup with a clear name. Open a known tube and confirm supports and landmarks look normal before you start.
+        <br><span class="check"><b>CHECK</b> Setup name includes unit, probe &amp; date</span></div>
+    </div>
+  </div>
+
+  <!-- Icons: probe, calibration standard, gauge -->
+  <svg class="icon" style="right:0.45in;top:2.05in" width="80" height="120" viewBox="0 0 80 120" fill="none" stroke="#13294b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="22" y="8" width="36" height="58" rx="16" fill="#fff"/>
+    <path d="M22 28h36M22 34h36M22 40h36M22 46h36" stroke="#c4652a"/>
+    <path d="M40 66 v10 q0 10 -10 16 t -4 22"/>
+    <path d="M64 14 q8 4 0 10 M70 8 q12 10 0 22" stroke="#1d7f86"/>
+  </svg>
+  <svg class="icon" style="right:0.3in;top:3.75in" width="110" height="80" viewBox="0 0 110 80" fill="none" stroke="#13294b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="26" width="98" height="28" rx="14" fill="#fff"/>
+    <circle cx="26" cy="40" r="4" fill="#13294b"/>
+    <rect x="40" y="35" width="8" height="10" rx="2" fill="#c4652a" stroke="none"/>
+    <rect x="56" y="36" width="7" height="8" rx="2" fill="#c4652a" stroke="none" opacity=".75"/>
+    <rect x="71" y="37" width="6" height="6" rx="2" fill="#c4652a" stroke="none" opacity=".5"/>
+    <path d="M20 14 h70" stroke="#1d7f86" stroke-dasharray="4 5"/>
+    <text x="55" y="72" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#13294b" stroke="none">CAL STD</text>
+  </svg>
+  <svg class="icon" style="right:0.4in;top:6.55in" width="96" height="96" viewBox="0 0 96 96" fill="none" stroke="#13294b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="48" cy="50" r="36" fill="#fff"/>
+    <path d="M22 62 A 30 30 0 1 1 74 62" stroke="#dfdacd" stroke-width="6"/>
+    <path d="M22 62 A 30 30 0 0 1 60 22" stroke="#c4652a" stroke-width="6"/>
+    <path d="M48 50 L66 32"/><circle cx="48" cy="50" r="4" fill="#13294b"/>
+    <text x="48" y="76" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#13294b" stroke="none">VOLTS</text>
+  </svg>
+  <!-- doodles -->
+  <svg class="doodle" style="right:0.55in;top:1.2in" width="90" height="34" viewBox="0 0 90 34" fill="none" stroke-width="3" stroke-linecap="round">
+    <path d="M4 12 q8 -10 16 0 t16 0 t16 0 t16 0 t16 0" stroke="#c4652a"/>
+    <path d="M4 26 q8 -10 16 0 t16 0 t16 0 t16 0 t16 0" stroke="#1d7f86"/>
+  </svg>
+  <svg class="doodle" style="left:0.55in;top:1.35in" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#1d7f86" stroke-width="3" stroke-linecap="round">
+    <path d="M8 30 l6 -18 M20 32 l2 -22 M32 30 l-4 -16"/>
+  </svg>
+  <svg class="doodle" style="right:0.7in;top:8.45in" width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="#c4652a" stroke-width="3" stroke-linecap="round">
+    <path d="M10 50 q 10 -40 20 -20 t 20 -20"/>
+  </svg>
+
+  <div class="tips">
+    <div class="t">QUICK<br>TIPS</div>
+    <div>Change one setting at a time and re-check the cal standard after each change.</div>
+    <div>Use the same setup for every tube in the same exam group.</div>
+    <div>If a step won't line up, stop and ask. Don't force it.</div>
+  </div>
+  <footer><span>Draft · check names &amp; values against your site procedure</span><span>Part A · Setup</span></footer>
+</section>
+
+<!-- ================= PAGE B: ANALYSIS ================= -->
+<section class="page b">
+  <svg class="waves" width="100%" height="100%"><rect width="100%" height="100%" fill="url(#wv)"/></svg>
+
+  <header>
+    <div class="kicker">Eddy Current Testing · Part B</div>
+    <h1>CORESTAR ANALYSIS</h1>
+    <div class="banner">HOW TO ANALYZE</div>
+    <p class="intro">A repeatable routine for every tube: scan, spot, measure, size, code, and report.</p>
+  </header>
+
+  <div class="steps" id="steps-b">
+    <svg id="wires-b"></svg>
+    <div class="step" style="margin-left:1.25in">
+      <div class="head"><div class="num">1</div><div class="pill">Scan the tube</div><div class="dash"></div></div>
+      <div class="body">Scroll the strip chart along the full length of the tube. Find the landmarks first: tube sheet, supports, and U-bend.
+        <br><span class="check"><b>CHECK</b> All expected landmarks are present</span></div>
+    </div>
+    <div class="step" style="margin-left:0.55in">
+      <div class="head"><div class="num">2</div><div class="pill">Spot signals</div><div class="dash"></div></div>
+      <div class="body">Look for anything that breaks the normal background or looks different from a typical support signal.
+        <br><span class="check"><b>CHECK</b> Review the primary channel first, then the others</span></div>
+    </div>
+    <div class="step" style="margin-left:1.25in">
+      <div class="head"><div class="num">3</div><div class="pill">Read the Lissajous</div><div class="dash"></div></div>
+      <div class="body">Box the signal and look at its shape in the Lissajous window. Measure the peak-to-peak voltage and note the phase angle.
+        <br><span class="check"><b>CHECK</b> Signal is clean, not noise or probe wobble</span></div>
+    </div>
+    <div class="step" style="margin-left:1.9in">
+      <div class="head"><div class="num">4</div><div class="pill">Size it</div><div class="dash"></div></div>
+      <div class="body">Read the depth from your calibration curve using the phase angle. Confirm the call on a second frequency or mix.
+        <br><span class="check"><b>CHECK</b> Both frequencies tell the same story</span></div>
+    </div>
+    <div class="step" style="margin-left:1.05in">
+      <div class="head"><div class="num">5</div><div class="pill">Code &amp; locate</div><div class="dash"></div></div>
+      <div class="body">Give it the right report code (for example, % depth, DNT, or NDD). Record the location in inches from the nearest landmark.
+        <br><span class="check"><b>CHECK</b> Code comes from the approved code list</span></div>
+    </div>
+    <div class="step" style="margin-left:0.4in">
+      <div class="head"><div class="num">6</div><div class="pill">Report &amp; review</div><div class="dash"></div></div>
+      <div class="body">Enter the result, save, and move to the next tube. Flag anything unusual for a second analyst or resolution review.
+        <br><span class="check"><b>CHECK</b> Every tube has a result, even if it's NDD</span></div>
+    </div>
+  </div>
+
+  <!-- Icons: monitor with strip chart, lissajous, magnifier -->
+  <svg class="icon" style="right:0.35in;top:2.15in" width="100" height="90" viewBox="0 0 100 90" fill="none" stroke="#13294b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="88" height="58" rx="8" fill="#fff"/>
+    <path d="M14 22 h20 l4 -8 l4 16 l4 -8 h40" stroke="#1d7f86"/>
+    <path d="M14 46 h34 l3 6 l3 -12 l3 6 h29" stroke="#c4652a"/>
+    <path d="M40 64 l-6 16 M60 64 l6 16 M28 82 h44"/>
+  </svg>
+  <svg class="icon" style="right:0.35in;top:3.7in" width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="#13294b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="88" height="88" rx="10" fill="#fff"/>
+    <path d="M50 14 v72 M14 50 h72" stroke="#dfdacd" stroke-width="1.5"/>
+    <path d="M50 50 C 62 30, 82 26, 78 36 C 74 46, 58 46, 50 50 C 42 54, 26 54, 22 64 C 18 74, 38 70, 50 50 Z" stroke="#1d7f86" stroke-width="3"/>
+    <path d="M50 50 L 76 30" stroke="#c4652a" stroke-dasharray="3 4"/>
+  </svg>
+  <svg class="icon" style="right:0.4in;top:6.6in" width="90" height="90" viewBox="0 0 90 90" fill="none" stroke="#13294b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="38" cy="38" r="26" fill="#fff"/>
+    <path d="M22 40 h8 l4 -10 l5 18 l4 -8 h10" stroke="#c4652a"/>
+    <path d="M57 57 l22 22" stroke-width="7"/>
+  </svg>
+  <!-- doodles -->
+  <svg class="doodle" style="right:0.55in;top:1.2in" width="90" height="34" viewBox="0 0 90 34" fill="none" stroke-width="3" stroke-linecap="round">
+    <path d="M4 12 q8 -10 16 0 t16 0 t16 0 t16 0 t16 0" stroke="#1d7f86"/>
+    <path d="M4 26 q8 -10 16 0 t16 0 t16 0 t16 0 t16 0" stroke="#c4652a"/>
+  </svg>
+  <svg class="doodle" style="left:0.55in;top:1.35in" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="#c4652a" stroke-width="3" stroke-linecap="round">
+    <path d="M8 30 l6 -18 M20 32 l2 -22 M32 30 l-4 -16"/>
+  </svg>
+  <svg class="doodle" style="right:0.7in;top:8.45in" width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="#1d7f86" stroke-width="3" stroke-linecap="round">
+    <path d="M10 50 q 10 -40 20 -20 t 20 -20"/>
+  </svg>
+
+  <div class="tips">
+    <div class="t">QUICK<br>TIPS</div>
+    <div>When unsure, compare the signal to the same spot on a clean tube.</div>
+    <div>Always measure location from the nearest landmark, not the tube end.</div>
+    <div>If you can't call it with confidence, flag it. Don't guess.</div>
+  </div>
+  <footer><span>Draft · check names &amp; values against your site procedure</span><span>Part B · Analysis</span></footer>
+</section>
+
+<script>
+  // Draw dashed connectors from each step's number badge to the next one.
+  function wire(stepsId, svgId) {
+    const box = document.getElementById(stepsId).getBoundingClientRect();
+    const svg = document.getElementById(svgId);
+    svg.setAttribute('width', box.width); svg.setAttribute('height', box.height);
+    const nums = [...document.querySelectorAll('#' + stepsId + ' .num')].map(n => n.getBoundingClientRect());
+    const steps = [...document.querySelectorAll('#' + stepsId + ' .step')].map(s => s.getBoundingClientRect());
+    let d = '';
+    for (let i = 0; i < nums.length - 1; i++) {
+      const a = nums[i], b = nums[i + 1];
+      const x1 = a.left + a.width / 2 - box.left, y1 = a.bottom - box.top;
+      const x2 = b.left + b.width / 2 - box.left, y2 = b.top - box.top;
+      const ym = (steps[i].bottom + b.top) / 2 - box.top;
+      d += `M${x1} ${y1} V${ym} H${x2} V${y2} `;
+    }
+    svg.innerHTML = `<path d="${d}" fill="none" stroke="#13294b" stroke-width="1.6" stroke-dasharray="3 4" opacity=".7"/>`;
+  }
+  document.fonts.ready.then(() => { wire('steps-a', 'wires-a'); wire('steps-b', 'wires-b'); });
+</script>
+</body>
+</html>
