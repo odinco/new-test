@@ -526,6 +526,7 @@
   }
 
   function render() {
+    if (!model) return;
     const p = +pos.value, idx = Math.min(model.n - 1, Math.round(p / STEP));
     if (idx < traceStart) traceStart = idx;
     els('posOut').textContent = `${p.toFixed(3)} in`;
@@ -571,11 +572,12 @@
 
   if (reduceMotion) els('anim').checked = false;
   els('anim').addEventListener('change', render);
-  (function loop(t) { if (animOn() && !document.hidden) drawStandard(els('std'), +pos.value, t / 1000); requestAnimationFrame(loop); })(performance.now());
   window.addEventListener('resize', () => { renderFx(); render(); });
   build();
   const first = () => { renderFx(); render(); };
+  function loop(t) { if (model && animOn() && !document.hidden) drawStandard(els('std'), +pos.value, t / 1000); requestAnimationFrame(loop); }
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(first);
   first();
+  requestAnimationFrame(loop);
 })();
 </script>
