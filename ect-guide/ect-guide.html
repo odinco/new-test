@@ -55,6 +55,29 @@
   .tips { position: absolute; left: 0.6in; right: 0.6in; bottom: 0.62in; background: var(--navy); color: #fff; border-radius: 14px;
           padding: 8px 16px; display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 16px; align-items: center; font-size: 8.6pt; line-height: 1.35; }
   .tips .t { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 11pt; color: #ffd27a; letter-spacing: .04em; }
+
+  /* ---------- PART C: indication field guide ---------- */
+  .page.c { --accent: #3b5ba5; }
+  .cards { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 0.13in; margin: 0.16in 0.6in 0; }
+  .card { background: #fff; border: 2px solid var(--navy); border-radius: 16px; padding: 10px 14px 10px; position: relative;
+          box-shadow: 0 3px 0 var(--navy); }
+  .card .top { display: flex; align-items: center; gap: 10px; min-height: 58px; padding-right: 70px; }
+  .card.mini .top { min-height: 0; padding-right: 0; }
+  .code { font-family: "JetBrains Mono", monospace; font-weight: 600; font-size: 13pt; color: #fff; background: var(--cc, var(--accent));
+          border: 2px solid var(--navy); border-radius: 9px; padding: 1px 8px; letter-spacing: .04em; }
+  .card h3 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 13pt; color: var(--navy); line-height: 1.1; }
+  .card .on { font-family: "JetBrains Mono", monospace; font-size: 7.4pt; letter-spacing: .06em; text-transform: uppercase;
+              color: var(--navy); margin-top: 1px; }
+  .card .on b { color: var(--cc, var(--accent)); }
+  .card .sketch { position: absolute; top: 10px; right: 10px; width: 58px; height: 58px; border-radius: 10px; background: #f5f2ea; }
+  .card dl { margin-top: 4px; font-size: 8.6pt; line-height: 1.36; padding-right: 2px; }
+  .card dt { font-family: "JetBrains Mono", monospace; font-size: 6.9pt; letter-spacing: .1em; text-transform: uppercase;
+             color: var(--cc, var(--accent)); font-weight: 600; margin-top: 5px; }
+  .card dd { margin: 0; }
+  .card.mini table { width: 100%; border-collapse: collapse; font-size: 8.6pt; margin-top: 8px; }
+  .card.mini td { padding: 4px 0; border-bottom: 1px dashed #dfdacd; vertical-align: top; }
+  .card.mini td:first-child { font-family: "JetBrains Mono", monospace; font-weight: 600; color: var(--accent); width: 0.5in; }
+  .card.mini .note { font-size: 7.6pt; color: #6b7384; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -238,6 +261,95 @@
     <div>If you can't call it with confidence, flag it. Don't guess.</div>
   </div>
   <footer><span>Draft · check names &amp; values against your site procedure</span><span>Part B · Analysis</span></footer>
+</section>
+
+<!-- ================= PAGE C: INDICATION FIELD GUIDE ================= -->
+<section class="page c">
+  <svg class="waves" width="100%" height="100%"><rect width="100%" height="100%" fill="url(#wv)"/></svg>
+
+  <header>
+    <div class="kicker">Eddy Current Testing · Part C</div>
+    <h1>CORESTAR ANALYSIS</h1>
+    <div class="banner">INDICATION FIELD GUIDE</div>
+    <p class="intro">The flaws we see most, which channel to call them on, and what to watch for.</p>
+  </header>
+
+  <div class="cards">
+    <!-- IDI -->
+    <div class="card" style="--cc:#c4652a">
+      <svg class="sketch" viewBox="0 0 64 64" fill="none" stroke-linecap="round"><path d="M32 8v48M8 32h48" stroke="#dfdacd" stroke-width="1"/>
+        <path d="M32 32 C 40 30, 52 22, 50 18 C 48 14, 38 26, 32 32 C 26 38, 16 50, 14 46 C 12 42, 24 34, 32 32 Z" stroke="#c4652a" stroke-width="2.2"/></svg>
+      <div class="top"><span class="code">IDI</span><div><h3>ID pitting</h3><div class="on"><b>CH1</b> · <b>M1</b> on supports</div></div></div>
+      <dl>
+        <dt>Looks like</dt><dd>Small, sharp, clean figure-8. Angle sits on the ID side of the through-wall line.</dd>
+        <dt>Tell-tale</dt><dd>Strongest on the highest frequency, since CH1 is most sensitive at the inside surface.</dd>
+        <dt>Watch out</dt><dd>Probe noise, scratches, and ID deposits. Confirm it repeats on another channel.</dd>
+      </dl>
+    </div>
+    <!-- ODI -->
+    <div class="card" style="--cc:#c4652a">
+      <svg class="sketch" viewBox="0 0 64 64" fill="none" stroke-linecap="round"><path d="M32 8v48M8 32h48" stroke="#dfdacd" stroke-width="1"/>
+        <path d="M32 32 C 30 24, 26 10, 22 12 C 18 14, 28 24, 32 32 C 36 40, 46 50, 42 52 C 38 54, 34 40, 32 32 Z" stroke="#c4652a" stroke-width="2.2"/></svg>
+      <div class="top"><span class="code">ODI</span><div><h3>OD pitting</h3><div class="on"><b>CH1</b> · <b>M1</b> on supports</div></div></div>
+      <dl>
+        <dt>Looks like</dt><dd>Figure-8 rotated past the through-wall line toward OD. Read depth from the cal curve.</dd>
+        <dt>Tell-tale</dt><dd>Also shows on lower frequencies. Shallow OD pits can be weak on CH1 but clear on CH3/CH5.</dd>
+        <dt>Watch out</dt><dd>Support edges and deposits pull the angle. Very low frequency drift alone is not an ODI.</dd>
+      </dl>
+    </div>
+    <!-- WAR -->
+    <div class="card" style="--cc:#1d7f86">
+      <svg class="sketch" viewBox="0 0 64 64" fill="none" stroke-linecap="round"><path d="M32 8v48M8 32h48" stroke="#dfdacd" stroke-width="1"/>
+        <path d="M32 32 C 38 20, 52 18, 52 26 C 52 32, 40 32, 32 32 C 24 32, 12 32, 12 38 C 12 46, 26 44, 32 32 Z" stroke="#1d7f86" stroke-width="2.2"/></svg>
+      <div class="top"><span class="code">WAR</span><div><h3>Wear</h3><div class="on"><b>M2</b></div></div></div>
+      <dl>
+        <dt>Looks like</dt><dd>A broad, slow signal right at a support or AVB once the mix removes the support.</dd>
+        <dt>Tell-tale</dt><dd>Always at a support edge. Often shows on neighboring tubes in high-flow areas.</dd>
+        <dt>Watch out</dt><dd>Normal mix residual can look like wear. Compare with clean supports in the same tube.</dd>
+      </dl>
+    </div>
+    <!-- ERO -->
+    <div class="card" style="--cc:#1d7f86">
+      <svg class="sketch" viewBox="0 0 64 64" fill="none" stroke-linecap="round"><path d="M8 50h48" stroke="#dfdacd" stroke-width="1"/>
+        <path d="M8 22 H22 C 30 22, 34 38, 42 40 H56" stroke="#1d7f86" stroke-width="2.2"/></svg>
+      <div class="top"><span class="code">ERO</span><div><h3>Erosion</h3><div class="on"><b>CH6</b> (absolute)</div></div></div>
+      <dl>
+        <dt>Looks like</dt><dd>A gradual drift on the absolute strip chart over a length of tube, not a sharp figure-8.</dd>
+        <dt>Tell-tale</dt><dd>Common at the inlet end, just past the tube sheet. Differentials may barely see it.</dd>
+        <dt>Watch out</dt><dd>Probe drift and the tube sheet transition. Compare with a clean stretch of the same tube.</dd>
+      </dl>
+    </div>
+    <!-- DNT -->
+    <div class="card" style="--cc:#13294b">
+      <svg class="sketch" viewBox="0 0 64 64" fill="none" stroke-linecap="round"><path d="M32 8v48M8 32h48" stroke="#dfdacd" stroke-width="1"/>
+        <path d="M32 32 C 42 26, 58 26, 56 31 C 54 36, 40 33, 32 32 C 24 31, 10 28, 8 33 C 6 38, 22 38, 32 32 Z" stroke="#13294b" stroke-width="2.2"/></svg>
+      <div class="top"><span class="code">DNT</span><div><h3>Dent</h3><div class="on"><b>CH1</b> · <b>M1</b> on supports</div></div></div>
+      <dl>
+        <dt>Looks like</dt><dd>Large signal, lying close to the probe-motion direction. A geometry change, not wall loss.</dd>
+        <dt>Tell-tale</dt><dd>High voltage with no flaw-like angle. Often at supports where corrosion squeezes the tube.</dd>
+        <dt>Watch out</dt><dd>A dent can hide a flaw. Check inside it on the higher frequencies and the mix.</dd>
+      </dl>
+    </div>
+    <!-- Other codes -->
+    <div class="card mini">
+      <div class="top"><span class="code" style="background:#fff;color:#13294b">+</span><div><h3>Other codes to know</h3><div class="on">Use your approved code list</div></div></div>
+      <table>
+        <tr><td>NDD</td><td>No detectable degradation. Every clean tube still gets a result.</td></tr>
+        <tr><td>RST</td><td>Restriction. The probe won't pass, so record where it stopped.</td></tr>
+        <tr><td>PLG</td><td>Plugged tube. Not tested, but still recorded.</td></tr>
+        <tr><td>DSI</td><td>Distorted support signal. Flag it for a closer look.</td></tr>
+      </table>
+      <p class="note">Codes vary by site. Swap these for the ones in your procedure.</p>
+    </div>
+  </div>
+
+  <div class="tips">
+    <div class="t">QUICK<br>TIPS</div>
+    <div>At a support, switch to the mix before you call anything.</div>
+    <div>Call on the listed channel, then confirm on one other.</div>
+    <div>Not sure what it is? Flag it. Don't force a code.</div>
+  </div>
+  <footer><span>Draft · check names &amp; values against your site procedure</span><span>Part C · Indications</span></footer>
 </section>
 
 <script>
