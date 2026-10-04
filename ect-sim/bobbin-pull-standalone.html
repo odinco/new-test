@@ -12,7 +12,7 @@
   :root {
     --bg: #0e151d; --panel: #141f2a; --panel-2: #1a2734; --grid: #22323f; --line: #2c3f50;
     --fg: #dbe5ee; --muted: #8ea3b6; --amber: #f0b03a; --cyan: #52c4d8; --flaw: #e46a4f; --metal: #5f7182; --metal-2: #48596a;
-    --ok: #7fcf8a; --steel: #8b7f6a; --edp: #ff6fae; --edn: #8f86ff;
+    --ok: #7fcf8a; --steel: #8b7f6a; --edp: #ff6fae; --edn: #8f86ff; --haze: #b9b2ff;
     --display: "Chakra Petch", "Arial Narrow", sans-serif;
     --body: "IBM Plex Sans", system-ui, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -94,7 +94,7 @@
   <section class="panel" aria-label="Calibration standard">
     <div class="ph"><h2>Calibration standard · side cutaway</h2><small>Pull: cable leads, probe travels left to right</small></div>
     <canvas id="std" aria-label="Probe inside the tube standard. Drag to pull the probe."></canvas>
-    <div class="legend" style="margin-top:8px"><span><i style="background:var(--edp)"></i>Eddy current into the page</span><span><i style="background:var(--edn)"></i>Out of the page</span><span><i style="background:#fff"></i>Crowding around a flaw</span><span>Brightness = current density, fading with depth</span></div>
+    <div class="legend" style="margin-top:8px"><span><i style="background:var(--edp)"></i>Eddy current into the page</span><span><i style="background:var(--edn)"></i>Out of the page</span><span><i style="background:#fff"></i>Crowding around a flaw</span><span><i style="background:var(--haze);opacity:.6"></i>Field reach (no current in air)</span><span>Brightness = current density, fading with depth</span></div>
     <div class="controls">
       <div class="pos">
         <input id="pos" type="range" min="0" max="11" step="0.002" value="2.0" aria-label="Probe position in inches">
@@ -198,7 +198,7 @@
 (() => {
   const D2R = Math.PI / 180, SIG = 0.07, STEP = 0.004, LEN = 11, WALL = 0.049, MU0 = 4e-7 * Math.PI;
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const C = {}; ['bg','panel-2','grid','line','fg','muted','amber','cyan','flaw','metal','metal-2','ok','steel','edp','edn'].forEach(k => C[k] = css('--' + k));
+  const C = {}; ['bg','panel-2','grid','line','fg','muted','amber','cyan','flaw','metal','metal-2','ok','steel','edp','edn','haze'].forEach(k => C[k] = css('--' + k));
   const els = id => document.getElementById(id);
   const pos = els('pos'), spacing = els('spacing'), wDepth = els('wDepth'), wLen = els('wLen'), freq = els('freq'), mat = els('mat');
 
@@ -394,7 +394,7 @@
       else { shapes.push([xa, boreTop - wall, wpx, dpx]); if (both) shapes.push([xa, boreBot + wall - dpx, wpx, dpx]); }
       ctx.fillStyle = C['panel-2']; shapes.forEach(r => ctx.fillRect(...r));
       ctx.strokeStyle = C.flaw; ctx.lineWidth = 1.5; shapes.forEach(r => ctx.strokeRect(...r));
-      ctx.fillStyle = C.flaw; ctx.font = font(11); ctx.textAlign = 'center'; ctx.fillText(f.name, (xa + xb) / 2, boreTop - wall - 8); ctx.textAlign = 'left';
+      if ((xa + xb) / 2 > 70 && (xa + xb) / 2 < w - 70) { ctx.fillStyle = C.flaw; ctx.font = font(11); ctx.textAlign = 'center'; ctx.fillText(f.name, (xa + xb) / 2, boreTop - wall - 8); ctx.textAlign = 'left'; }
     }
     // probe body; on a pull the cable leads in the direction of travel
     const s = model.s, ph = (boreBot - boreTop) * 0.56, py = (boreTop + boreBot) / 2 - ph / 2;
@@ -420,12 +420,13 @@
   // Current density J ~ G(axial) * exp(-z/δ) * cos(ωt - z/δ): it fades and lags with depth z below the ID.
   // Voids carry no current; current crowds around a flaw's edges and through the ligament under it.
   const off = document.createElement('canvas'), offCtx = off.getContext('2d');
-  const RES = 2, GAP = 4, SUPT = 26, CROWD_LEN = 0.008, GAIN = 1.35;
+  const RES = 2, GAP = 4, SUPT = 26, CROWD_LEN = 0.008, GAIN = 1.35, AIR_SPREAD = 0.09;
   const rgb = hx => { const n = parseInt(hx.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const animOn = () => els('anim').checked;
   function drawEddy(ctx, w, x0, view, boreTop, boreBot, wall, radial, p, s, tSec) {
-    const regionH = wall + GAP + SUPT, cols = Math.ceil(w / RES), rows = Math.ceil(regionH / RES);
+    // region runs from the ID surface out to the canvas edge, so the field's reach past the OD is visible
+    const regionH = boreTop, cols = Math.ceil(w / RES), rows = Math.ceil(regionH / RES);
     if (off.width !== cols || off.height !== rows * 2) { off.width = cols; off.height = rows * 2; }
     const img = offCtx.createImageData(cols, rows * 2), d = img.data;
     const delta = model.delta, t = WALL, gapIn = GAP / radial, supIn = SUPT / radial;
@@ -441,36 +442,46 @@
       for (const wi of walls) rects[wi].push([xa, xb, za, zb]);
     }
     const anim = animOn(), wt = tSec * 2 * Math.PI / 1.6;
-    const cPos = rgb(C.edp), cNeg = rgb(C.edn);
-    // precompute axial position of each column
+    const cPos = rgb(C.edp), cNeg = rgb(C.edn), cHaze = rgb(C.haze);
     const xs = new Float64Array(cols); for (let c = 0; c < cols; c++) xs[c] = x0 + ((c + 0.5) * RES / w) * view;
     for (let wi = 0; wi < 2; wi++) {
       const dirSign = wi === 0 ? 1 : -1; // circumferential current: into the page on top, out of it on the bottom
       for (let r = 0; r < rows; r++) {
         const z = (r + 0.5) * RES / radial, inTube = z <= t, inSupBand = z > t + gapIn && z <= t + gapIn + supIn;
-        if (!inTube && !inSupBand) continue;
-        const decay = Math.exp(-z / delta), phase = Math.cos(wt - z / delta), sa = 0.06 + 0.6 * z, inv = 1 / (2 * sa * sa);
+        // inside metal the field decays as exp(-z/δ); past the OD it only spreads out (air does not absorb it)
+        const throughWall = Math.exp(-Math.min(z, t) / delta), spread = z > t ? Math.exp(-(z - t) / AIR_SPREAD) : 1;
+        const decay = throughWall * spread, supDecay = decay * Math.exp(-Math.max(0, z - t - gapIn) / delta);
+        if (decay * GAIN * 2 < 0.004) continue;
+        const phase = Math.cos(wt - z / delta), sa = 0.06 + 0.6 * z, inv = 1 / (2 * sa * sa);
         for (let c = 0; c < cols; c++) {
           const xi = xs[c];
-          let cond = 1;
-          if (!inTube) { if (xi < sup.x - sup.L / 2 || xi > sup.x + sup.L / 2) continue; cond = 0.8; }
-          let inside = false, dmin = 1e9;
+          // which medium: tube metal, support metal, or air (outside the tube, or inside a flaw)
+          let metal = inTube, cond = 1;
+          if (!inTube && inSupBand && xi >= sup.x - sup.L / 2 && xi <= sup.x + sup.L / 2) { metal = true; cond = 0.8; }
+          let dmin = 1e9;
           if (inTube) for (const [xa, xb, za, zb] of rects[wi]) {
             const dx = xi < xa ? xa - xi : xi > xb ? xi - xb : 0, dz = z < za ? za - z : z > zb ? z - zb : 0;
-            if (dx === 0 && dz === 0) { inside = true; break; }
+            if (dx === 0 && dz === 0) { metal = false; break; }
             const dd = Math.hypot(dx, dz); if (dd < dmin) dmin = dd;
           }
-          if (inside) continue;
           let mag = 0;
           for (const xc of coils) { const u = xi - xc; mag += Math.exp(-u * u * inv); }
-          mag *= decay * cond * GAIN;
+          mag *= (cond < 1 ? supDecay : decay) * GAIN;
           if (mag < 0.004) continue;
+          const k = ((wi * rows + r) * cols + c) * 4;
+          if (!metal) {
+            // magnetic field reach: present in air, but no eddy current flows there
+            const a = Math.min(1, Math.pow(mag, 0.6)) * 0.42;
+            if (a < 0.015) continue;
+            d[k] = cHaze[0]; d[k + 1] = cHaze[1]; d[k + 2] = cHaze[2]; d[k + 3] = a * 255;
+            continue;
+          }
+          mag *= cond;
           const crowd = dmin < 1e8 ? Math.exp(-dmin / CROWD_LEN) : 0, boost = 1 + 2.6 * crowd;
           const val = (anim ? mag * phase * dirSign : mag) * boost;
           const a = Math.min(1, Math.pow(Math.abs(val), 0.7));
           if (a < 0.02) continue;
           const base = val >= 0 ? cPos : cNeg, hot = Math.min(1, crowd * Math.min(1, mag * 2.5)) * 0.9;
-          const k = ((wi * rows + r) * cols + c) * 4;
           d[k] = base[0] + (255 - base[0]) * hot; d[k + 1] = base[1] + (255 - base[1]) * hot; d[k + 2] = base[2] + (255 - base[2]) * hot; d[k + 3] = a * 230;
         }
       }
