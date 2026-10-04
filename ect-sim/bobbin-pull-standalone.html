@@ -12,7 +12,7 @@
   :root {
     --bg: #0e151d; --panel: #141f2a; --panel-2: #1a2734; --grid: #22323f; --line: #2c3f50;
     --fg: #dbe5ee; --muted: #8ea3b6; --amber: #f0b03a; --cyan: #52c4d8; --flaw: #e46a4f; --metal: #5f7182; --metal-2: #48596a;
-    --ok: #7fcf8a; --steel: #8b7f6a;
+    --ok: #7fcf8a; --steel: #8b7f6a; --edp: #ff6fae; --edn: #8f86ff;
     --display: "Chakra Petch", "Arial Narrow", sans-serif;
     --body: "IBM Plex Sans", system-ui, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -30,7 +30,7 @@
   .ph h2 { font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; margin: 0; color: var(--fg); }
   .ph small { font-family: var(--mono); font-size: 11px; color: var(--muted); }
   canvas { display: block; width: 100%; border-radius: 6px; background: var(--panel-2); touch-action: none; }
-  #std { height: 300px; cursor: ew-resize; }
+  #std { height: 320px; cursor: ew-resize; }
   .scopes { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; }
   .scope canvas { aspect-ratio: 1 / 1; }
   .scope.wide { grid-column: span 2; }
@@ -94,6 +94,7 @@
   <section class="panel" aria-label="Calibration standard">
     <div class="ph"><h2>Calibration standard · side cutaway</h2><small>Pull: cable leads, probe travels left to right</small></div>
     <canvas id="std" aria-label="Probe inside the tube standard. Drag to pull the probe."></canvas>
+    <div class="legend" style="margin-top:8px"><span><i style="background:var(--edp)"></i>Eddy current into the page</span><span><i style="background:var(--edn)"></i>Out of the page</span><span><i style="background:#fff"></i>Crowding around a flaw</span><span>Brightness = current density, fading with depth</span></div>
     <div class="controls">
       <div class="pos">
         <input id="pos" type="range" min="0" max="11" step="0.002" value="2.0" aria-label="Probe position in inches">
@@ -102,6 +103,7 @@
       <div class="row">
         <button id="play" type="button">Pull probe</button>
         <button id="clear" class="ghost" type="button">Clear screens</button>
+        <label for="anim"><input id="anim" type="checkbox" checked> Animate AC field</label>
         <label for="speed">Speed
           <select id="speed"><option value="0.6">Slow</option><option value="1.4" selected>Normal</option><option value="3">Fast</option></select>
         </label>
@@ -160,6 +162,7 @@
       <ul>
         <li><b>Stop just past the 100% hole.</b> The first loop is drawn. Keep pulling and the second loop forms on the other side of null.</li>
         <li><b>Stretch the wear scar past the coil spacing.</b> The differential splits into two small signals at the scar's ends while the absolute stays one hump.</li>
+        <li><b>Park coil A under the 60% hole.</b> The eddy currents can't cross the hole, so they crowd through the thin ligament under it and glow white.</li>
         <li><b>Drop to 25 kHz and pull past the ID groove and the support ring.</b> The ID groove nearly disappears and the support takes over the screen.</li>
       </ul>
     </section>
@@ -195,7 +198,7 @@
 (() => {
   const D2R = Math.PI / 180, SIG = 0.07, STEP = 0.004, LEN = 11, WALL = 0.049, MU0 = 4e-7 * Math.PI;
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const C = {}; ['bg','panel-2','grid','line','fg','muted','amber','cyan','flaw','metal','metal-2','ok','steel'].forEach(k => C[k] = css('--' + k));
+  const C = {}; ['bg','panel-2','grid','line','fg','muted','amber','cyan','flaw','metal','metal-2','ok','steel','edp','edn'].forEach(k => C[k] = css('--' + k));
   const els = id => document.getElementById(id);
   const pos = els('pos'), spacing = els('spacing'), wDepth = els('wDepth'), wLen = els('wLen'), freq = els('freq'), mat = els('mat');
 
@@ -357,11 +360,11 @@
     ctx.strokeStyle = C.fg; ctx.globalAlpha = .5; ctx.beginPath(); ctx.moveTo(X(idx * STEP), top); ctx.lineTo(X(idx * STEP), top + ph); ctx.stroke(); ctx.globalAlpha = 1;
   }
 
-  function drawStandard(cv, p) {
+  function drawStandard(cv, p, tSec = performance.now() / 1000) {
     const { ctx, w, h } = setup(cv);
     ctx.fillStyle = C['panel-2']; ctx.fillRect(0, 0, w, h);
     const view = Math.min(LEN, Math.max(1.6, w / 420)), x0 = Math.min(LEN - view, Math.max(0, p - view / 2));
-    const X = x => ((x - x0) / view) * w, wall = 34, boreTop = 108, boreBot = h - 108, radial = wall / WALL;
+    const X = x => ((x - x0) / view) * w, wall = 48, boreTop = 120, boreBot = h - 120, radial = wall / WALL;
     // support ring sits outside the tube
     const sup = model.F.find(f => f.support), sa = X(sup.x - sup.L / 2), sb = X(sup.x + sup.L / 2);
     if (sb > 0 && sa < w) {
@@ -400,18 +403,9 @@
     ctx.fillStyle = C.muted; ctx.beginPath(); ctx.moveTo(w - 4, cy); ctx.lineTo(w - 16, cy - 7); ctx.lineTo(w - 16, cy + 7); ctx.closePath(); ctx.fill();
     ctx.font = font(10); ctx.textAlign = 'right'; ctx.fillText('pull', w - 20, cy - 10); ctx.textAlign = 'left';
     ctx.fillStyle = '#2a3a49'; ctx.strokeStyle = C.line; ctx.lineWidth = 1; roundRect(ctx, bodyL, py, bodyR - bodyL, ph, ph / 2); ctx.fill(); ctx.stroke();
-    // eddy-current field: starts at the ID surface and decays outward with the standard depth of penetration
+    // eddy currents: computed per pixel through the wall and support, and disturbed by the flaws
     const dpx = model.delta * radial, axial = Math.max(26, (0.09 / view) * w);
-    const field = (x, col) => {
-      for (const [y, dir] of [[boreTop, -1], [boreBot, 1]]) {
-        ctx.save(); ctx.beginPath(); ctx.rect(x - axial * 3.2, dir < 0 ? 0 : y, axial * 6.4, dir < 0 ? y : h - y); ctx.clip();
-        ctx.translate(x, y); ctx.scale(axial, dpx);
-        const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 3);
-        g.addColorStop(0, hexA(col, .75)); g.addColorStop(1 / 3, hexA(col, .28)); g.addColorStop(2 / 3, hexA(col, .1)); g.addColorStop(1, hexA(col, 0));
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-      }
-    };
-    field(pxA, C.amber); field(pxB, C.cyan);
+    drawEddy(ctx, w, x0, view, boreTop, boreBot, wall, radial, p, s, tSec);
     // 1-delta marker on the top wall
     ctx.save(); ctx.setLineDash([3, 3]); ctx.strokeStyle = C.fg; ctx.globalAlpha = .6;
     const yd = boreTop - dpx; ctx.beginPath(); ctx.moveTo(pxA + axial * 0.9, boreTop); ctx.lineTo(pxA + axial * 0.9, Math.max(4, yd)); ctx.stroke(); ctx.restore();
@@ -421,6 +415,71 @@
       ctx.fillStyle = col; ctx.fillRect(x - cw / 2, py - 2, cw, ph + 4);
       ctx.font = `600 12px ${css('--display')}`; ctx.textAlign = 'center'; ctx.fillText(lab, x + (lab === 'A' ? 8 : -8), lab === 'A' ? py - 8 : py + ph + 18); ctx.textAlign = 'left';
     }
+  }
+  // ---------- eddy-current field
+  // Current density J ~ G(axial) * exp(-z/δ) * cos(ωt - z/δ): it fades and lags with depth z below the ID.
+  // Voids carry no current; current crowds around a flaw's edges and through the ligament under it.
+  const off = document.createElement('canvas'), offCtx = off.getContext('2d');
+  const RES = 2, GAP = 4, SUPT = 26, CROWD_LEN = 0.008, GAIN = 1.35;
+  const rgb = hx => { const n = parseInt(hx.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const animOn = () => els('anim').checked;
+  function drawEddy(ctx, w, x0, view, boreTop, boreBot, wall, radial, p, s, tSec) {
+    const regionH = wall + GAP + SUPT, cols = Math.ceil(w / RES), rows = Math.ceil(regionH / RES);
+    if (off.width !== cols || off.height !== rows * 2) { off.width = cols; off.height = rows * 2; }
+    const img = offCtx.createImageData(cols, rows * 2), d = img.data;
+    const delta = model.delta, t = WALL, gapIn = GAP / radial, supIn = SUPT / radial;
+    const coils = [p + s / 2, p - s / 2], sup = model.F.find(f => f.support);
+    const rects = [[], []];
+    for (const f of model.F) {
+      if (f.support) continue;
+      const xa = f.x - f.L / 2, xb = f.x + f.L / 2; if (xb < x0 - 0.2 || xa > x0 + view + 0.2) continue;
+      let za, zb, walls;
+      if (f.side === 'ID') { za = 0; zb = f.depth * t; walls = [0, 1]; }
+      else if (f.side === 'TW') { za = 0; zb = t; walls = [0]; }
+      else { za = (1 - f.depth) * t; zb = t; walls = (f.name.startsWith('4×') || f.wear) ? [0, 1] : [0]; }
+      for (const wi of walls) rects[wi].push([xa, xb, za, zb]);
+    }
+    const anim = animOn(), wt = tSec * 2 * Math.PI / 1.6;
+    const cPos = rgb(C.edp), cNeg = rgb(C.edn);
+    // precompute axial position of each column
+    const xs = new Float64Array(cols); for (let c = 0; c < cols; c++) xs[c] = x0 + ((c + 0.5) * RES / w) * view;
+    for (let wi = 0; wi < 2; wi++) {
+      const dirSign = wi === 0 ? 1 : -1; // circumferential current: into the page on top, out of it on the bottom
+      for (let r = 0; r < rows; r++) {
+        const z = (r + 0.5) * RES / radial, inTube = z <= t, inSupBand = z > t + gapIn && z <= t + gapIn + supIn;
+        if (!inTube && !inSupBand) continue;
+        const decay = Math.exp(-z / delta), phase = Math.cos(wt - z / delta), sa = 0.06 + 0.6 * z, inv = 1 / (2 * sa * sa);
+        for (let c = 0; c < cols; c++) {
+          const xi = xs[c];
+          let cond = 1;
+          if (!inTube) { if (xi < sup.x - sup.L / 2 || xi > sup.x + sup.L / 2) continue; cond = 0.8; }
+          let inside = false, dmin = 1e9;
+          if (inTube) for (const [xa, xb, za, zb] of rects[wi]) {
+            const dx = xi < xa ? xa - xi : xi > xb ? xi - xb : 0, dz = z < za ? za - z : z > zb ? z - zb : 0;
+            if (dx === 0 && dz === 0) { inside = true; break; }
+            const dd = Math.hypot(dx, dz); if (dd < dmin) dmin = dd;
+          }
+          if (inside) continue;
+          let mag = 0;
+          for (const xc of coils) { const u = xi - xc; mag += Math.exp(-u * u * inv); }
+          mag *= decay * cond * GAIN;
+          if (mag < 0.004) continue;
+          const crowd = dmin < 1e8 ? Math.exp(-dmin / CROWD_LEN) : 0, boost = 1 + 2.6 * crowd;
+          const val = (anim ? mag * phase * dirSign : mag) * boost;
+          const a = Math.min(1, Math.pow(Math.abs(val), 0.7));
+          if (a < 0.02) continue;
+          const base = val >= 0 ? cPos : cNeg, hot = Math.min(1, crowd * Math.min(1, mag * 2.5)) * 0.9;
+          const k = ((wi * rows + r) * cols + c) * 4;
+          d[k] = base[0] + (255 - base[0]) * hot; d[k + 1] = base[1] + (255 - base[1]) * hot; d[k + 2] = base[2] + (255 - base[2]) * hot; d[k + 3] = a * 230;
+        }
+      }
+    }
+    offCtx.putImageData(img, 0, 0);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.imageSmoothingEnabled = true;
+    ctx.save(); ctx.translate(0, boreTop); ctx.scale(1, -1); ctx.drawImage(off, 0, 0, cols, rows, 0, 0, cols * RES, rows * RES); ctx.restore();
+    ctx.drawImage(off, 0, rows, cols, rows, 0, boreBot, cols * RES, rows * RES);
+    ctx.restore();
   }
   function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 
@@ -517,6 +576,9 @@
   });
   std.addEventListener('pointerup', () => { dragging = false; });
 
+  if (reduceMotion) els('anim').checked = false;
+  els('anim').addEventListener('change', render);
+  (function loop(t) { if (animOn() && !document.hidden) drawStandard(els('std'), +pos.value, t / 1000); requestAnimationFrame(loop); })(performance.now());
   window.addEventListener('resize', () => { renderFx(); render(); });
   build();
   const first = () => { renderFx(); render(); };
