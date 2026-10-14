@@ -124,7 +124,7 @@
         </div>
       </div>
       <div class="row">
-        <label class="slider" for="spacing">Coil spacing <input id="spacing" type="range" min="0.03" max="0.3" step="0.005" value="0.06"><output id="spacingOut">0.060 in</output></label>
+        <label class="slider" for="spacing">Coil spacing <input id="spacing" type="range" min="0.03" max="0.2" step="0.005" value="0.06"><output id="spacingOut">0.060 in</output></label>
         <label class="slider" for="wDepth">Wear scar depth <input id="wDepth" type="range" min="10" max="80" step="1" value="40"><output id="wDepthOut">40%</output></label>
         <label class="slider" for="wLen">Wear scar length <input id="wLen" type="range" min="0.05" max="1.2" step="0.01" value="0.25"><output id="wLenOut">0.25 in</output></label>
       </div>
@@ -163,6 +163,7 @@
         <li><b>Stop just past the 100% hole.</b> The first loop is drawn. Keep pulling and the second loop forms on the other side of null.</li>
         <li><b>Stretch the wear scar past the coil spacing.</b> The differential splits into two small signals at the scar's ends while the absolute stays one hump.</li>
         <li><b>Park coil A under the 60% hole.</b> The eddy currents can't cross the hole, so they crowd through the thin ligament under it and glow white.</li>
+        <li><b>Slide the coil spacing.</b> Closer coils give a sharper figure-8; wider coils open the loops up and make the signal bigger.</li>
         <li><b>Drop to 25 kHz and pull past the ID groove and the support ring.</b> The ID groove nearly disappears and the support takes over the screen.</li>
       </ul>
     </section>
@@ -249,7 +250,9 @@
 
   let model = null;
   function build() {
-    const fk = +freq.value, sigma = +mat.value, F = flaws(fk, sigma), s = +spacing.value, k = 12, n = Math.round(LEN / STEP) + 1;
+    const fk = +freq.value, sigma = +mat.value, F = flaws(fk, sigma), s = +spacing.value, n = Math.round(LEN / STEP) + 1;
+    // edge phase drift grows with coil separation, so closer coils give sharper loops and wider coils more open ones (matches field observation)
+    const k = Math.min(65, 12 * Math.pow(s / 0.06, 1.4));
     const diff = new Float64Array(n * 2), abs = new Float64Array(n * 2);
     for (let i = 0; i < n; i++) {
       // coil A leads on a pull; differential shown as B − A so the trace runs in pull orientation
