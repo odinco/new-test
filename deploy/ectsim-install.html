@@ -169,7 +169,7 @@
         &lt;/div&gt;
       &lt;/div&gt;
       &lt;div class=&quot;row&quot;&gt;
-        &lt;label class=&quot;slider&quot; for=&quot;spacing&quot;&gt;Coil spacing &lt;input id=&quot;spacing&quot; type=&quot;range&quot; min=&quot;0.03&quot; max=&quot;0.2&quot; step=&quot;0.005&quot; value=&quot;0.06&quot;&gt;&lt;output id=&quot;spacingOut&quot;&gt;0.060 in&lt;/output&gt;&lt;/label&gt;
+        &lt;label class=&quot;slider&quot; for=&quot;spacing&quot;&gt;Coil spacing &lt;input id=&quot;spacing&quot; type=&quot;range&quot; min=&quot;0.03&quot; max=&quot;0.3&quot; step=&quot;0.005&quot; value=&quot;0.06&quot;&gt;&lt;output id=&quot;spacingOut&quot;&gt;0.060 in&lt;/output&gt;&lt;/label&gt;
         &lt;label class=&quot;slider&quot; for=&quot;wDepth&quot;&gt;Wear scar depth &lt;input id=&quot;wDepth&quot; type=&quot;range&quot; min=&quot;10&quot; max=&quot;80&quot; step=&quot;1&quot; value=&quot;40&quot;&gt;&lt;output id=&quot;wDepthOut&quot;&gt;40%&lt;/output&gt;&lt;/label&gt;
         &lt;label class=&quot;slider&quot; for=&quot;wLen&quot;&gt;Wear scar length &lt;input id=&quot;wLen&quot; type=&quot;range&quot; min=&quot;0.05&quot; max=&quot;1.2&quot; step=&quot;0.01&quot; value=&quot;0.25&quot;&gt;&lt;output id=&quot;wLenOut&quot;&gt;0.25 in&lt;/output&gt;&lt;/label&gt;
       &lt;/div&gt;
@@ -297,12 +297,14 @@
   function build() {
     const fk = +freq.value, sigma = +mat.value, F = flaws(fk, sigma), s = +spacing.value, n = Math.round(LEN / STEP) + 1;
     const k = 12;
-    // loop width follows coil separation: closer coils give a sharper figure-8, wider coils a more open one (matches field observation).
-    // Applied per flaw, across that flaw&#x27;s own angle, so the figure-8 keeps its shape, its lobe sides and its angle.
-    const W = Math.pow(s / 0.06, 1.2), S_REF = 0.06, SHORT = 0.15;
-    // size of each short flaw&#x27;s differential at this spacing relative to the reference spacing
+    // Coil spacing: the loop shape is the original model&#x27;s shape at the mirrored spacing (0.03&quot; &lt;-&gt; 0.30&quot;),
+    // so closer coils give the sharp figure-8 and wider coils the open one (matches field observation).
+    // Timing along the pull and signal size still follow the real spacing.
+    const S_MIN = 0.03, S_MAX = 0.3, SHORT = 0.15, sShape = S_MIN + S_MAX - s;
     const peakDiff = (f, sp) =&gt; { let m = 0; for (let u = -0.6; u &lt;= 0.6; u += 0.004) { const a = coil(f.x + u + sp / 2, [f], k), b = coil(f.x + u - sp / 2, [f], k); m = Math.max(m, Math.hypot(b[0] - a[0], b[1] - a[1])); } return m; };
-    const gain = F.map(f =&gt; f.L &lt;= SHORT ? peakDiff(f, s) / Math.max(1e-9, peakDiff(f, S_REF)) : 1);
+    const gain = F.map(f =&gt; f.L &lt;= SHORT ? peakDiff(f, s) / Math.max(1e-9, peakDiff(f, sShape)) : 1);
+    // signal length along the pull is roughly coil footprint plus spacing, so stretch by that ratio
+    const stretch = (4 * SIG + sShape) / (4 * SIG + s);
     const diff = new Float64Array(n * 2), abs = new Float64Array(n * 2);
     for (let i = 0; i &lt; n; i++) {
       // coil A leads on a pull; differential shown as B − A so the trace runs in pull orientation
@@ -313,15 +315,13 @@
         const A = coil(x + s / 2, [f], k); are += A[0]; aim += A[1];
         let re, im;
         if (f.L &lt;= SHORT) {
-          // short flaw: use the clean figure-8 shape from the reference spacing, stretched along the pull and sized for this spacing
-          const xr = f.x + (x - f.x) * (S_REF / s), Ar = coil(xr + S_REF / 2, [f], k), Br = coil(xr - S_REF / 2, [f], k);
+          // short flaw: figure-8 shape from the mirrored spacing, stretched to this spacing&#x27;s timing and sized for this spacing
+          const xr = f.x + (x - f.x) * stretch, Ar = coil(xr + sShape / 2, [f], k), Br = coil(xr - sShape / 2, [f], k);
           re = (Br[0] - Ar[0]) * gain[fi]; im = (Br[1] - Ar[1]) * gain[fi];
         } else {
           const B = coil(x - s / 2, [f], k); re = B[0] - A[0]; im = B[1] - A[1];
         }
-        if (re === 0 &amp;&amp; im === 0) continue;
-        const c = Math.cos(f.th * D2R), sn = Math.sin(f.th * D2R), along = re * c + im * sn, perp = (-re * sn + im * c) * W;
-        dre += along * c - perp * sn; dim += along * sn + perp * c;
+        dre += re; dim += im;
       }
       diff[2 * i] = dre; diff[2 * i + 1] = dim; abs[2 * i] = are; abs[2 * i + 1] = aim;
     }

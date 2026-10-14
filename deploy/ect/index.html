@@ -124,7 +124,7 @@
         </div>
       </div>
       <div class="row">
-        <label class="slider" for="spacing">Coil spacing <input id="spacing" type="range" min="0.03" max="0.2" step="0.005" value="0.06"><output id="spacingOut">0.060 in</output></label>
+        <label class="slider" for="spacing">Coil spacing <input id="spacing" type="range" min="0.03" max="0.3" step="0.005" value="0.06"><output id="spacingOut">0.060 in</output></label>
         <label class="slider" for="wDepth">Wear scar depth <input id="wDepth" type="range" min="10" max="80" step="1" value="40"><output id="wDepthOut">40%</output></label>
         <label class="slider" for="wLen">Wear scar length <input id="wLen" type="range" min="0.05" max="1.2" step="0.01" value="0.25"><output id="wLenOut">0.25 in</output></label>
       </div>
@@ -252,12 +252,14 @@
   function build() {
     const fk = +freq.value, sigma = +mat.value, F = flaws(fk, sigma), s = +spacing.value, n = Math.round(LEN / STEP) + 1;
     const k = 12;
-    // loop width follows coil separation: closer coils give a sharper figure-8, wider coils a more open one (matches field observation).
-    // Applied per flaw, across that flaw's own angle, so the figure-8 keeps its shape, its lobe sides and its angle.
-    const W = Math.pow(s / 0.06, 1.2), S_REF = 0.06, SHORT = 0.15;
-    // size of each short flaw's differential at this spacing relative to the reference spacing
+    // Coil spacing: the loop shape is the original model's shape at the mirrored spacing (0.03" <-> 0.30"),
+    // so closer coils give the sharp figure-8 and wider coils the open one (matches field observation).
+    // Timing along the pull and signal size still follow the real spacing.
+    const S_MIN = 0.03, S_MAX = 0.3, SHORT = 0.15, sShape = S_MIN + S_MAX - s;
     const peakDiff = (f, sp) => { let m = 0; for (let u = -0.6; u <= 0.6; u += 0.004) { const a = coil(f.x + u + sp / 2, [f], k), b = coil(f.x + u - sp / 2, [f], k); m = Math.max(m, Math.hypot(b[0] - a[0], b[1] - a[1])); } return m; };
-    const gain = F.map(f => f.L <= SHORT ? peakDiff(f, s) / Math.max(1e-9, peakDiff(f, S_REF)) : 1);
+    const gain = F.map(f => f.L <= SHORT ? peakDiff(f, s) / Math.max(1e-9, peakDiff(f, sShape)) : 1);
+    // signal length along the pull is roughly coil footprint plus spacing, so stretch by that ratio
+    const stretch = (4 * SIG + sShape) / (4 * SIG + s);
     const diff = new Float64Array(n * 2), abs = new Float64Array(n * 2);
     for (let i = 0; i < n; i++) {
       // coil A leads on a pull; differential shown as B − A so the trace runs in pull orientation
@@ -268,15 +270,13 @@
         const A = coil(x + s / 2, [f], k); are += A[0]; aim += A[1];
         let re, im;
         if (f.L <= SHORT) {
-          // short flaw: use the clean figure-8 shape from the reference spacing, stretched along the pull and sized for this spacing
-          const xr = f.x + (x - f.x) * (S_REF / s), Ar = coil(xr + S_REF / 2, [f], k), Br = coil(xr - S_REF / 2, [f], k);
+          // short flaw: figure-8 shape from the mirrored spacing, stretched to this spacing's timing and sized for this spacing
+          const xr = f.x + (x - f.x) * stretch, Ar = coil(xr + sShape / 2, [f], k), Br = coil(xr - sShape / 2, [f], k);
           re = (Br[0] - Ar[0]) * gain[fi]; im = (Br[1] - Ar[1]) * gain[fi];
         } else {
           const B = coil(x - s / 2, [f], k); re = B[0] - A[0]; im = B[1] - A[1];
         }
-        if (re === 0 && im === 0) continue;
-        const c = Math.cos(f.th * D2R), sn = Math.sin(f.th * D2R), along = re * c + im * sn, perp = (-re * sn + im * c) * W;
-        dre += along * c - perp * sn; dim += along * sn + perp * c;
+        dre += re; dim += im;
       }
       diff[2 * i] = dre; diff[2 * i + 1] = dim; abs[2 * i] = are; abs[2 * i + 1] = aim;
     }
